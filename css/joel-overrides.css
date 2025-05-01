@@ -1,0 +1,12 @@
+/* smaller code block font size. !important needed to override theme
+ * which inserts it's CSS late */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 0.80rem !important;          /* e.g. 14 px if body text is 16 px  */
+  line-height: 1.4 !important;
+}
+
+/* do not capitalize tags/labels */
+.post-tag {
+	text-transform: unset;
+}
