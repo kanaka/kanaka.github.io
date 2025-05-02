@@ -36,6 +36,8 @@ You will either need a Github account (to access Github Copilot) or you will nee
 <em>$ uv pip install litellm/</em>
 ```
 
+Note: in the examples that follow, user input that is typed into the agent is shown with a <span style="color: plum">plum</span> color.
+
 We are now ready to start the fun!
 
 # Step 1: Single API call
@@ -134,17 +136,18 @@ while True:
     print(f"assistant> {resp_message.content}")
 ```
 
-Run our new version of the "agent":
+Run our new version of the "agent" (user input is shown with a <span
+style="color: plum">plum</span> color):
 
 ```text
 <em>$ ./agent.py</em>
-user> List five funny names for a Linux computer (without any explanation):
+user> <span style="color: plum">List five funny names for a Linux computer (without any explanation):</span>
 assistant> TuxTastic
 KernelKicker
 BashfulBot
 PenguinPirate
 SudoSultan
-user> In a short sentence, explain why the fifth one is funny.
+user> <span style="color: plum">In a short sentence, explain why the fifth one is funny.</span>
 assistant> SudoSultan is funny because it blends the superuser command "sudo" with a regal title, humorously elevating its authority.
 ```
 
@@ -258,7 +261,7 @@ Run our new version of the "agent":
 
 ```text
 <em>$ ./agent.py</em>
-user> What is the first line of file ./agent.py?
+user> <span style="color: plum">What is the first line of file ./agent.py?</span>
 calling read_file({'path': './agent.py'})
 result: {"content": "#!/usr/bin/env python3\n\nfrom litellm import completio...
 assistant> The first line of the file is: #!/usr/bin/env python3
@@ -361,7 +364,7 @@ Let's try it out:
 
 ```text
 <em>$ ./agent.py</em>
-user> Summarize the functionality of the python file in this dir in one sentence.
+user> <span style="color: plum">Summarize the functionality of the python file in this dir in one sentence.</span>
 calling ls_dir({'path': '.'})
 result: {"stdout": "total 16\ndrwxrwxr-x@  7 joelmartin  staff   224 May  2 ...
 calling read_file({'path': './agent.py'})
@@ -427,11 +430,11 @@ Now let's use the new editing ability to make changes to a file:
 <em>$ echo 'hello NAME!' > greet.txt</em>
 
 <em>$ ./agent.py</em>
-user> Change the greeting in the text file to use my first name.
+user> <span style="color: plum">Change the greeting in the text file to use my first name.</span>
 assistant> Could you please clarify two things for me?
 1. What is the path or name of the text file you're referring to?
 2. What is your first name that you would like to use in the greeting?
-user> My name is Joel. You find the file.
+user> <span style="color: plum">My name is Joel. You find the file.</span>
 tool call> ls_dir({'path': '.'})
 tool result> {"stdout": "total 16\ndrwxrwxr-x@  7 joelmartin  staff   224 Ma...
 tool call> read_file({'path': 'greet.txt'})
@@ -454,17 +457,17 @@ to its own code.
 
 ```text
 <em>$ ./agent.py</em>
-user> Copy agent.py to agent2.py where we will make changes. Start by adding a friendly startup message (with model).
+user> <span style="color: plum">Copy agent.py to agent2.py where we will make changes. Start by adding a friendly startup message (with model).</span>
 tool call> read_file({'path': 'agent.py'})
 tool result> {"content": "#!/usr/bin/env python3\n\nfrom litellm import comp...
 tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
 tool result> {}
 assistant> I've created agent2.py with a friendly startup message that prints the model being used.
-user> For the three prints and the input call, colorize the part before the '>' using ASCII escape codes (red, green, blue, purple).
+user> <span style="color: plum">For the three prints and the input call, colorize the part before the '>' using ASCII escape codes (red, green, blue, purple).</span>
 tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
 tool result> {}
 assistant> I've updated agent2.py to colorize the prompt and prints. Red is now used for the user input, green for tool call, blue for tool result, and purple for assistant's plain output.
-user> Before calling a tool, confirm with the user. If confirmed continue as before, otherwise add a response map to the messages with a "User Refused" error.
+user> <span style="color: plum">Before calling a tool, confirm with the user. If confirmed continue as before, otherwise add a response map to the messages with a "User Refused" error.</span>
 tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
 tool result> {}
 assistant> I've updated agent2.py to prompt the user for confirmation before calling any tool. If you enter anything other than 'y', the tool call will be skipped and an error message ("User Refused") will be added to the messages.
@@ -477,7 +480,7 @@ Now test the agent driven code changes:
 
 <em>$ ./agent2.py</em>
 Welcome! Starting agent with model: github_copilot/o3-mini
-<span style="color: red">user</span>> What is in ./greet.txt?
+<span style="color: red">user</span>> <span style="color: plum">What is in ./greet.txt?</span>
 <span style="color: yellow">Confirm calling tool 'read_file' with arguments {'path': './greet.txt'}? (y/N)</span>> y
 <span style="color: green">tool call</span>> read_file({'path': './greet.txt'})
 <span style="color: blue">tool result</span>> {"content": "hello Joel!\n"}
