@@ -517,22 +517,22 @@ pre[class*="language-diff-"] {
 <ul>
 <li>Create a directory for your agent:</li>
 </ul>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">mkdir</span> my-agent
-$ <span class="token builtin class-name">cd</span> my-agent</code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ mkdir my-agent</em>
+<em>$ cd my-agent</em></code></pre>
 <ul>
 <li>Install <code>uv</code> (if you have not already) and then setup a virtual
 environment:</li>
 </ul>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">curl</span> <span class="token parameter variable">-LsSf</span> https://astral.sh/uv/install.sh <span class="token operator">|</span> <span class="token function">sh</span>
-$ uv venv
-$ <span class="token builtin class-name">source</span> .venv/bin/activate</code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ curl -LsSf https://astral.sh/uv/install.sh | sh</em>
+<em>$ uv venv</em>
+<em>$ source .venv/bin/activate</em></code></pre>
 <ul>
 <li>Clone a branch of the LiteLLM project that has support for Github
 Copilot models. Then install the local copy of LiteLLM and its
 dependencies into the virtual environment:</li>
 </ul>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">git</span> clone https://github.com/BerriAI/litellm <span class="token parameter variable">-b</span> litellm_dev_03_05_2025_contributor_prs
-$ uv pip <span class="token function">install</span> litellm/</code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs</em>
+<em>$ uv pip install litellm/</em></code></pre>
 <p>We are now ready to start the fun!</p>
 <h1 id="step-1-single-api-call">Step 1: Single API call</h1>
 <picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.png" alt="Diagram of Step 1 - Single API call" width="661" height="421"></picture>
@@ -556,8 +556,9 @@ response <span class="token operator">=</span> completion<span class="token punc
 
 <span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message<span class="token punctuation">.</span>content<span class="token punctuation">)</span></code></pre>
 <p>Now run your new &quot;agent&quot;:</p>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">chmod</span> +x agent.py
-$ ./agent.py <span class="token string">"In a single sentence, define the word 'agent'"</span>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ chmod +x agent.py</em>
+
+<em>$ ./agent.py "In a single sentence, define the word 'agent'"</em>
 An agent is someone or something that acts on behalf of another person or entity, or that produces a specific effect.</code></pre>
 <p>We make a single call LLM model and provide it with a single &quot;user&quot;
 message. We then extract the response message from the LLM and print
@@ -600,7 +601,6 @@ response to the messages list in addition to printing it out.</p>
         user_input <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"user> "</span><span class="token punctuation">)</span>
     <span class="token keyword">except</span> EOFError <span class="token keyword">as</span> e<span class="token punctuation">:</span>
         <span class="token keyword">break</span>
-
     messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> user_input<span class="token punctuation">,</span> <span class="token string">"role"</span><span class="token punctuation">:</span><span class="token string">"user"</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
 
     response <span class="token operator">=</span> completion<span class="token punctuation">(</span>
@@ -614,18 +614,15 @@ response to the messages list in addition to printing it out.</p>
     
     <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"assistant> </span><span class="token interpolation"><span class="token punctuation">{</span>resp_message<span class="token punctuation">.</span>content<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span></code></pre>
 <p>Run our new version of the &quot;agent&quot;:</p>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
-user<span class="token operator">></span> List five funny names <span class="token keyword">for</span> a Linux computer <span class="token punctuation">(</span>without any explanation<span class="token punctuation">)</span>:
-assistant<span class="token operator">></span> Okay, here are five funny names <span class="token keyword">for</span> a Linux computer:
-
-<span class="token number">1</span>.  Kernel Sanders
-<span class="token number">2</span>.  Blue Screen of Awesome
-<span class="token number">3</span>.  <span class="token function">rm</span> <span class="token parameter variable">-rf</span> /home
-<span class="token number">4</span>.  Stack Overfloweth
-<span class="token number">5</span>.  Binaryoncé
-
-user<span class="token operator">></span> In one short sentence, explain why the fifth one is funny.
-assistant<span class="token operator">></span> <span class="token string">"Binaryoncé"</span> is funny because it's a play on the name Beyoncé, implying the computer is a powerful and glamorous diva of the binary world.</code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> List five funny names for a Linux computer (without any explanation):
+assistant> TuxTastic
+KernelKicker
+BashfulBot
+PenguinPirate
+SudoSultan
+user> In a short sentence, explain why the fifth one is funny.
+assistant> SudoSultan is funny because it blends the superuser command "sudo" with a regal title, humorously elevating its authority.</code></pre>
 <p>The second user query asks about the assistant's first response.
 A correct answer confirms that the context (messages list) is being
 accumulated correctly, otherwise the assistant would not be able to
@@ -686,8 +683,8 @@ arguments and output:</p>
         <span class="token keyword">if</span> fn<span class="token punctuation">.</span>name <span class="token operator">==</span> <span class="token string">"read_file"</span><span class="token punctuation">:</span>
             fn_args <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>fn<span class="token punctuation">.</span>arguments<span class="token punctuation">)</span>
             <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"calling read_file(</span><span class="token interpolation"><span class="token punctuation">{</span>fn_args<span class="token punctuation">}</span></span><span class="token string">)"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
-            fn_result <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token operator">**</span>fn_args<span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
-            res_str <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>fn_result<span class="token punctuation">)</span>"
+            fn_result <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token builtin">open</span><span class="token punctuation">(</span>fn_args<span class="token punctuation">[</span><span class="token string">'path'</span><span class="token punctuation">]</span><span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+            res_str <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>fn_result<span class="token punctuation">)</span>
             <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"result: </span><span class="token interpolation"><span class="token punctuation">{</span>res_str<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
             messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
                 <span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"tool"</span><span class="token punctuation">,</span>
@@ -706,14 +703,13 @@ that we added:</p>
             user_input <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"user> "</span><span class="token punctuation">)</span>
         <span class="token keyword">except</span> EOFError <span class="token keyword">as</span> e<span class="token punctuation">:</span>
             <span class="token keyword">break</span>
-
         messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> user_input<span class="token punctuation">,</span> <span class="token string">"role"</span><span class="token punctuation">:</span><span class="token string">"user"</span><span class="token punctuation">}</span><span class="token punctuation">)</span></code></pre>
 <p>Run our new version of the &quot;agent&quot;:</p>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
-user<span class="token operator">></span> What is the first line of <span class="token function">file</span> ./agent.py?
-calling read_file<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'file'</span><span class="token builtin class-name">:</span> <span class="token string">'./agent.py'</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
-result: <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token builtin class-name">:</span> "#<span class="token operator">!</span>/usr/bin/env python3<span class="token punctuation">\</span>n<span class="token punctuation">\</span>nfrom litellm <span class="token function">import</span> completio<span class="token punctuation">..</span>.
-assistant<span class="token operator">></span> The first line of the <span class="token function">file</span> ./agent.py is <span class="token comment">#!/usr/bin/env python3.</span></code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> What is the first line of file ./agent.py?
+calling read_file({'path': './agent.py'})
+result: {"content": "#!/usr/bin/env python3\n\nfrom litellm import completio...
+assistant> The first line of the file is: #!/usr/bin/env python3</code></pre>
 <h1 id="step-4-generic-tools-interface">Step 4: Generic tools interface</h1>
 <picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.png" alt="Diagram of Step 4 - generic tools" width="661" height="581"></picture>
 <p>The current implementation uses a hard-coded definition for the
@@ -785,13 +781,13 @@ for calling the tools defined in the <code>TOOLS_MAP</code>:</p>
             fn_result <span class="token operator">=</span> TOOLS_MAP<span class="token punctuation">[</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token operator">**</span>fn_args<span class="token punctuation">)</span>
             <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span></code></pre>
 <p>Let's try it out:</p>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
-user<span class="token operator">></span> There is a python <span class="token function">file</span> <span class="token keyword">in</span> this dir. Use your tools to <span class="token function">find</span> it, <span class="token builtin class-name">read</span> it, and summarize it <span class="token keyword">in</span> one sentence.
-calling ls_dir<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'path'</span><span class="token builtin class-name">:</span> <span class="token string">'.'</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
-result: <span class="token punctuation">{</span><span class="token string">"stdout"</span><span class="token builtin class-name">:</span> <span class="token string">"total 8<span class="token entity" title="\n">\n</span>drwxrwxr-x@  6 joelmartin  staff   192 May  1 0...
-calling read_file({'path': 'agent.py'})
-result: {"</span>content<span class="token string">": "</span>#<span class="token operator">!</span>/usr/bin/env python3<span class="token punctuation">\</span>n<span class="token punctuation">\</span>nfrom litellm <span class="token function">import</span> completio<span class="token punctuation">..</span>.
-assistant<span class="token operator">></span> This Python script defines an agent that uses the litellm library to interact with a language model, allowing the user to provide input and receive responses, potentially utilizing tools like reading files and listing directory contents based on the model's tool calls.</code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> Summarize the functionality of the python file in this dir in one sentence.
+calling ls_dir({'path': '.'})
+result: {"stdout": "total 16\ndrwxrwxr-x@  7 joelmartin  staff   224 May  2 ...
+calling read_file({'path': './agent.py'})
+result: {"content": "#!/usr/bin/env python3\n\nfrom litellm import completio...
+assistant> This Python script implements an interactive command-line coding agent that leverages a language model to process user inputs and execute defined filesystem tools (such as reading files and listing directory contents) based on dynamically generated tool calls.</code></pre>
 <h1 id="step-5-file-editing-tools">Step 5: File editing tools</h1>
 <picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.png" alt="Diagram of Step 5 - file editing tools" width="661" height="581"></picture>
 <p>Our agent has the ability to list and read files, now let's make the
@@ -829,38 +825,60 @@ improve the error handling and format of the tool calling messages:</p>
                 fn_result <span class="token operator">=</span> TOOLS_MAP<span class="token punctuation">[</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token operator">**</span>fn_args<span class="token punctuation">)</span>
             <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
                 fn_result <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"error"</span><span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">}</span>
-            res_str <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>fn_result<span class="token punctuation">)</span>"
+            res_str <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>fn_result<span class="token punctuation">)</span>
             <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"tool result> </span><span class="token interpolation"><span class="token punctuation">{</span>res_str<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
             message<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
                 <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span></code></pre>
 <p>Now let's use the new editing ability to make changes to a file:</p>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
-user<span class="token operator">></span> Change the greeting <span class="token keyword">in</span> the text <span class="token function">file</span> to use my first name.
-assistant<span class="token operator">></span> Could you please clarify <span class="token function">which</span> text <span class="token function">file</span> you<span class="token string">'d like to update? Also, let me know your first name so I can make the correct change.
-user> My name is Joel. You figure out the file.
-tool call> edit_file({'</span>match<span class="token string">': '</span>Hello<span class="token string">', '</span>replace<span class="token string">': '</span>Hello Joel<span class="token string">', '</span>path<span class="token string">': '</span>gr<span class="token punctuation">..</span>.
-tool result<span class="token operator">></span> <span class="token punctuation">{</span><span class="token string">"error"</span><span class="token builtin class-name">:</span> <span class="token string">"[Errno 2] No such file or directory: 'greeting.txt'"</span><span class="token punctuation">}</span>
-tool call<span class="token operator">></span> ls_dir<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'path'</span><span class="token builtin class-name">:</span> <span class="token string">'.'</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
-tool result<span class="token operator">></span> <span class="token punctuation">{</span><span class="token string">"stdout"</span><span class="token builtin class-name">:</span> <span class="token string">"total 24<span class="token entity" title="\n">\n</span>drwxrwxr-x@  7 joelmartin  staff   224 Ma...
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ echo 'hello NAME!' > greet.txt</em>
+
+<em>$ ./agent.py</em>
+user> Change the greeting in the text file to use my first name.
+assistant> Could you please clarify two things for me?
+1. What is the path or name of the text file you're referring to?
+2. What is your first name that you would like to use in the greeting?
+user> My name is Joel. You find the file.
+tool call> ls_dir({'path': '.'})
+tool result> {"stdout": "total 16\ndrwxrwxr-x@  7 joelmartin  staff   224 Ma...
 tool call> read_file({'path': 'greet.txt'})
-tool result> {"</span>content<span class="token string">": "</span>hello NAME<span class="token operator">!</span><span class="token punctuation">\</span>n<span class="token string">"}
+tool result> {"content": "hello NAME!\n"}
 tool call> edit_file({'match': 'NAME', 'replace': 'Joel', 'path': 'greet.txt'})
 tool result> {}
-assistant> I found the file "</span>greet.txt<span class="token string">". I've changed the greeting so that it now says "</span>hello Joel<span class="token operator">!</span>".</code></pre>
+assistant> The greeting in greet.txt has been updated to "hello Joel!"</code></pre>
+<p>Note that sometimes the model will not ask the clarifying questions
+and will use the result of <code>ls_dir</code> to guess the first name based on
+directory/file ownership.</p>
 <h1 id="step-6-final-touch-ups">Step 6: Final touch ups</h1>
 <p>Those four simple tools/abilities (list files, read a file, create a file, and
 edit a file) are enough to give our agent the ability to do coding
 tasks. So let's use our agent itself to make some final improvements
 to its own code.</p>
-<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
-user<span class="token operator">></span> Copy agent.py to agent2.py where we will <span class="token function">make</span> changes. Start by adding a friendly startup message <span class="token punctuation">(</span>with model<span class="token punctuation">)</span>.
-TODO/TBD
-user<span class="token operator">></span> For the three prints and the input call, colorize the part before the <span class="token string">'>'</span> using ASCII escape codes <span class="token punctuation">(</span>red, green, blue, purple<span class="token punctuation">)</span>.
-user<span class="token operator">></span> Before calling a tool, confirm with the user. If confirmed <span class="token builtin class-name">continue</span> as before, otherwise <span class="token function">add</span> a response map to the messages with a <span class="token string">"User Refused"</span> error.
-TODO/TBD
-<span class="token punctuation">..</span>.ELIDED<span class="token punctuation">..</span>.
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> Copy agent.py to agent2.py where we will make changes. Start by adding a friendly startup message (with model).
+tool call> read_file({'path': 'agent.py'})
+tool result> {"content": "#!/usr/bin/env python3\n\nfrom litellm import comp...
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
+tool result> {}
+assistant> I've created agent2.py with a friendly startup message that prints the model being used.
+user> For the three prints and the input call, colorize the part before the '>' using ASCII escape codes (red, green, blue, purple).
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
+tool result> {}
+assistant> I've updated agent2.py to colorize the prompt and prints. Red is now used for the user input, green for tool call, blue for tool result, and purple for assistant's plain output.
+user> Before calling a tool, confirm with the user. If confirmed continue as before, otherwise add a response map to the messages with a "User Refused" error.
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
+tool result> {}
+assistant> I've updated agent2.py to prompt the user for confirmation before calling any tool. If you enter anything other than 'y', the tool call will be skipped and an error message ("User Refused") will be added to the messages.</code></pre>
+<p>Now test the agent driven code changes:</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ chmod +x agent2.py</em>
 
-$ ./agent2.py</code></pre>
+<em>$ ./agent2.py</em>
+Welcome! Starting agent with model: github_copilot/o3-mini
+<span style="color: red">user</span>> What is in ./greet.txt?
+<span style="color: yellow">Confirm calling tool 'read_file' with arguments {'path': './greet.txt'}? (y/N)</span>> y
+<span style="color: green">tool call</span>> read_file({'path': './greet.txt'})
+<span style="color: blue">tool result</span>> {"content": "hello Joel!\n"}
+<span style="color: purple">assistant</span>> The content of "./greet.txt" is:
+hello Joel!</code></pre>
 <p>The full code for each of the above steps can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.</p>
 <h1 id="step-7-you-take-it-from-here">Step 7: You take it from here!</h1>
 <p>You now have a basic working coding agent. The next steps are up to
@@ -890,7 +908,7 @@ has trouble using the tools the way they are currently defined.</li>
 			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
 		</footer>
 
-		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-05-02T16:48:39.815Z -->
+		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-05-02T17:46:27.461Z -->
 		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
 	</body>
 </html>
