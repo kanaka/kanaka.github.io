@@ -14,26 +14,26 @@ You will either need a Github account (to access Github Copilot) or you will nee
 
 * Create a directory for your agent:
 
-```shell
-$ mkdir my-agent
-$ cd my-agent
+```text
+<em>$ mkdir my-agent</em>
+<em>$ cd my-agent</em>
 ```
 
 * Install `uv` (if you have not already) and then setup a virtual
   environment:
-```shell
-$ curl -LsSf https://astral.sh/uv/install.sh | sh
-$ uv venv
-$ source .venv/bin/activate
+```text
+<em>$ curl -LsSf https://astral.sh/uv/install.sh | sh</em>
+<em>$ uv venv</em>
+<em>$ source .venv/bin/activate</em>
 ```
 
 * Clone a branch of the LiteLLM project that has support for Github
   Copilot models. Then install the local copy of LiteLLM and its
   dependencies into the virtual environment:
 
-```shell
-$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs
-$ uv pip install litellm/
+```text
+<em>$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs</em>
+<em>$ uv pip install litellm/</em>
 ```
 
 We are now ready to start the fun!
@@ -67,9 +67,10 @@ print(response.choices[0].message.content)
 
 Now run your new "agent":
 
-```shell
-$ chmod +x agent.py
-$ ./agent.py "In a single sentence, define the word 'agent'"
+```text
+<em>$ chmod +x agent.py</em>
+
+<em>$ ./agent.py "In a single sentence, define the word 'agent'"</em>
 An agent is someone or something that acts on behalf of another person or entity, or that produces a specific effect.
 ```
 
@@ -119,7 +120,6 @@ while True:
         user_input = input("user> ")
     except EOFError as e:
         break
-
     messages.append({"content": user_input, "role":"user"})
 
     response = completion(
@@ -136,19 +136,16 @@ while True:
 
 Run our new version of the "agent":
 
-```shell
-$ ./agent.py
+```text
+<em>$ ./agent.py</em>
 user> List five funny names for a Linux computer (without any explanation):
-assistant> Okay, here are five funny names for a Linux computer:
-
-1.  Kernel Sanders
-2.  Blue Screen of Awesome
-3.  rm -rf /home
-4.  Stack Overfloweth
-5.  Binaryoncé
-
-user> In one short sentence, explain why the fifth one is funny.
-assistant> "Binaryoncé" is funny because it's a play on the name Beyoncé, implying the computer is a powerful and glamorous diva of the binary world.
+assistant> TuxTastic
+KernelKicker
+BashfulBot
+PenguinPirate
+SudoSultan
+user> In a short sentence, explain why the fifth one is funny.
+assistant> SudoSultan is funny because it blends the superuser command "sudo" with a regal title, humorously elevating its authority.
 ```
 
 The second user query asks about the assistant's first response.
@@ -230,8 +227,8 @@ Then, replace the assistant output message line with the following:
         if fn.name == "read_file":
             fn_args = json.loads(fn.arguments)
             print(trunc(f"calling read_file({fn_args})"))
-            fn_result = {"content": open(**fn_args).read()}
-            res_str = json.dumps(fn_result)"
+            fn_result = {"content": open(fn_args['path']).read()}
+            res_str = json.dumps(fn_result)
             print(trunc(f"result: {res_str}"))
             messages.append({
                 "role": "tool",
@@ -254,18 +251,17 @@ that we added:
             user_input = input("user> ")
         except EOFError as e:
             break
-
         messages.append({"content": user_input, "role":"user"})
 ```
 
 Run our new version of the "agent":
 
-```shell
-$ ./agent.py
+```text
+<em>$ ./agent.py</em>
 user> What is the first line of file ./agent.py?
-calling read_file({'file': './agent.py'})
+calling read_file({'path': './agent.py'})
 result: {"content": "#!/usr/bin/env python3\n\nfrom litellm import completio...
-assistant> The first line of the file ./agent.py is #!/usr/bin/env python3.
+assistant> The first line of the file is: #!/usr/bin/env python3
 ```
 
 # Step 4: Generic tools interface
@@ -363,14 +359,14 @@ for calling the tools defined in the `TOOLS_MAP`:
 
 Let's try it out:
 
-```shell
-$ ./agent.py
-user> There is a python file in this dir. Use your tools to find it, read it, and summarize it in one sentence.
+```text
+<em>$ ./agent.py</em>
+user> Summarize the functionality of the python file in this dir in one sentence.
 calling ls_dir({'path': '.'})
-result: {"stdout": "total 8\ndrwxrwxr-x@  6 joelmartin  staff   192 May  1 0...
-calling read_file({'path': 'agent.py'})
+result: {"stdout": "total 16\ndrwxrwxr-x@  7 joelmartin  staff   224 May  2 ...
+calling read_file({'path': './agent.py'})
 result: {"content": "#!/usr/bin/env python3\n\nfrom litellm import completio...
-assistant> This Python script defines an agent that uses the litellm library to interact with a language model, allowing the user to provide input and receive responses, potentially utilizing tools like reading files and listing directory contents based on the model's tool calls.
+assistant> This Python script implements an interactive command-line coding agent that leverages a language model to process user inputs and execute defined filesystem tools (such as reading files and listing directory contents) based on dynamically generated tool calls.
 ```
 
 # Step 5: File editing tools
@@ -419,7 +415,7 @@ improve the error handling and format of the tool calling messages:
                 fn_result = TOOLS_MAP[fn.name](**fn_args)
             except Exception as e:
                 fn_result = {"error": str(e)}
-            res_str = json.dumps(fn_result)"
+            res_str = json.dumps(fn_result)
             print(trunc(f"tool result> {res_str}"))
             message.append({
                 ...
@@ -427,21 +423,27 @@ improve the error handling and format of the tool calling messages:
 
 Now let's use the new editing ability to make changes to a file:
 
-```shell
-$ ./agent.py
+```text
+<em>$ echo 'hello NAME!' > greet.txt</em>
+
+<em>$ ./agent.py</em>
 user> Change the greeting in the text file to use my first name.
-assistant> Could you please clarify which text file you'd like to update? Also, let me know your first name so I can make the correct change.
-user> My name is Joel. You figure out the file.
-tool call> edit_file({'match': 'Hello', 'replace': 'Hello Joel', 'path': 'gr...
-tool result> {"error": "[Errno 2] No such file or directory: 'greeting.txt'"}
+assistant> Could you please clarify two things for me?
+1. What is the path or name of the text file you're referring to?
+2. What is your first name that you would like to use in the greeting?
+user> My name is Joel. You find the file.
 tool call> ls_dir({'path': '.'})
-tool result> {"stdout": "total 24\ndrwxrwxr-x@  7 joelmartin  staff   224 Ma...
+tool result> {"stdout": "total 16\ndrwxrwxr-x@  7 joelmartin  staff   224 Ma...
 tool call> read_file({'path': 'greet.txt'})
 tool result> {"content": "hello NAME!\n"}
 tool call> edit_file({'match': 'NAME', 'replace': 'Joel', 'path': 'greet.txt'})
 tool result> {}
-assistant> I found the file "greet.txt". I've changed the greeting so that it now says "hello Joel!".
+assistant> The greeting in greet.txt has been updated to "hello Joel!"
 ```
+
+Note that sometimes the model will not ask the clarifying questions
+and will use the result of `ls_dir` to guess the first name based on
+directory/file ownership.
 
 # Step 6: Final touch ups
 
@@ -450,16 +452,37 @@ edit a file) are enough to give our agent the ability to do coding
 tasks. So let's use our agent itself to make some final improvements
 to its own code.
 
-```shell
-$ ./agent.py
+```text
+<em>$ ./agent.py</em>
 user> Copy agent.py to agent2.py where we will make changes. Start by adding a friendly startup message (with model).
-TODO/TBD
+tool call> read_file({'path': 'agent.py'})
+tool result> {"content": "#!/usr/bin/env python3\n\nfrom litellm import comp...
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
+tool result> {}
+assistant> I've created agent2.py with a friendly startup message that prints the model being used.
 user> For the three prints and the input call, colorize the part before the '>' using ASCII escape codes (red, green, blue, purple).
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
+tool result> {}
+assistant> I've updated agent2.py to colorize the prompt and prints. Red is now used for the user input, green for tool call, blue for tool result, and purple for assistant's plain output.
 user> Before calling a tool, confirm with the user. If confirmed continue as before, otherwise add a response map to the messages with a "User Refused" error.
-TODO/TBD
-...ELIDED...
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nfrom litellm i...
+tool result> {}
+assistant> I've updated agent2.py to prompt the user for confirmation before calling any tool. If you enter anything other than 'y', the tool call will be skipped and an error message ("User Refused") will be added to the messages.
+```
 
-$ ./agent2.py
+Now test the agent driven code changes:
+
+```text
+<em>$ chmod +x agent2.py</em>
+
+<em>$ ./agent2.py</em>
+Welcome! Starting agent with model: github_copilot/o3-mini
+<span style="color: red">user</span>> What is in ./greet.txt?
+<span style="color: yellow">Confirm calling tool 'read_file' with arguments {'path': './greet.txt'}? (y/N)</span>> y
+<span style="color: green">tool call</span>> read_file({'path': './greet.txt'})
+<span style="color: blue">tool result</span>> {"content": "hello Joel!\n"}
+<span style="color: purple">assistant</span>> The content of "./greet.txt" is:
+hello Joel!
 ```
 
 The full code for each of the above steps can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.
