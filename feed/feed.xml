@@ -11,7 +11,7 @@
     <name>Your Name</name>
   </author>
   <entry>
-    <title>An LLM Coding Agent in 6 incremental steps and less than 130 lines of python</title>
+    <title>An LLM Coding Agent in 6 incremental steps and about 140 lines of python</title>
     <link href="https://example.com/blog/litellm-agent-in-six-steps/" />
     <updated>2025-05-01T00:00:00Z</updated>
     <id>https://example.com/blog/litellm-agent-in-six-steps/</id>
