@@ -37,6 +37,7 @@ dependencies into the virtual environment:&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs&lt;/em&gt;
 &lt;em&gt;$ uv pip install litellm/&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note: in the examples that follow, user input that is typed into the agent is shown with a &lt;span style=&quot;color: plum&quot;&gt;plum&lt;/span&gt; color.&lt;/p&gt;
 &lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
 &lt;h1 id=&quot;step-1-single-api-call&quot;&gt;Step 1: Single API call&lt;/h1&gt;
 &lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.avif 661w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.webp 661w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.png&quot; alt=&quot;Diagram of Step 1 - Single API call&quot; width=&quot;661&quot; height=&quot;421&quot;&gt;&lt;/picture&gt;
@@ -117,15 +118,15 @@ response to the messages list in addition to printing it out.&lt;/p&gt;
     messages&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;model_dump&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
     
     &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;assistant&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot;:&lt;/p&gt;
+&lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot; (user input is shown with a &lt;span style=&quot;color: plum&quot;&gt;plum&lt;/span&gt; color):&lt;/p&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
-user&gt; List five funny names for a Linux computer (without any explanation):
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;List five funny names for a Linux computer (without any explanation):&lt;/span&gt;
 assistant&gt; TuxTastic
 KernelKicker
 BashfulBot
 PenguinPirate
 SudoSultan
-user&gt; In a short sentence, explain why the fifth one is funny.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;In a short sentence, explain why the fifth one is funny.&lt;/span&gt;
 assistant&gt; SudoSultan is funny because it blends the superuser command &quot;sudo&quot; with a regal title, humorously elevating its authority.&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;The second user query asks about the assistant&#39;s first response.
 A correct answer confirms that the context (messages list) is being
@@ -210,7 +211,7 @@ that we added:&lt;/p&gt;
         messages&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; user_input&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot;:&lt;/p&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
-user&gt; What is the first line of file ./agent.py?
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;What is the first line of file ./agent.py?&lt;/span&gt;
 calling read_file({&#39;path&#39;: &#39;./agent.py&#39;})
 result: {&quot;content&quot;: &quot;#!/usr/bin/env python3&#92;n&#92;nfrom litellm import completio...
 assistant&gt; The first line of the file is: #!/usr/bin/env python3&lt;/code&gt;&lt;/pre&gt;
@@ -286,7 +287,7 @@ for calling the tools defined in the &lt;code&gt;TOOLS_MAP&lt;/code&gt;:&lt;/p&g
             &lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Let&#39;s try it out:&lt;/p&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
-user&gt; Summarize the functionality of the python file in this dir in one sentence.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Summarize the functionality of the python file in this dir in one sentence.&lt;/span&gt;
 calling ls_dir({&#39;path&#39;: &#39;.&#39;})
 result: {&quot;stdout&quot;: &quot;total 16&#92;ndrwxrwxr-x@  7 joelmartin  staff   224 May  2 ...
 calling read_file({&#39;path&#39;: &#39;./agent.py&#39;})
@@ -337,11 +338,11 @@ improve the error handling and format of the tool calling messages:&lt;/p&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ echo &#39;hello NAME!&#39; &gt; greet.txt&lt;/em&gt;
 
 &lt;em&gt;$ ./agent.py&lt;/em&gt;
-user&gt; Change the greeting in the text file to use my first name.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Change the greeting in the text file to use my first name.&lt;/span&gt;
 assistant&gt; Could you please clarify two things for me?
 1. What is the path or name of the text file you&#39;re referring to?
 2. What is your first name that you would like to use in the greeting?
-user&gt; My name is Joel. You find the file.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;My name is Joel. You find the file.&lt;/span&gt;
 tool call&gt; ls_dir({&#39;path&#39;: &#39;.&#39;})
 tool result&gt; {&quot;stdout&quot;: &quot;total 16&#92;ndrwxrwxr-x@  7 joelmartin  staff   224 Ma...
 tool call&gt; read_file({&#39;path&#39;: &#39;greet.txt&#39;})
@@ -358,17 +359,17 @@ edit a file) are enough to give our agent the ability to do coding
 tasks. So let&#39;s use our agent itself to make some final improvements
 to its own code.&lt;/p&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
-user&gt; Copy agent.py to agent2.py where we will make changes. Start by adding a friendly startup message (with model).
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Copy agent.py to agent2.py where we will make changes. Start by adding a friendly startup message (with model).&lt;/span&gt;
 tool call&gt; read_file({&#39;path&#39;: &#39;agent.py&#39;})
 tool result&gt; {&quot;content&quot;: &quot;#!/usr/bin/env python3&#92;n&#92;nfrom litellm import comp...
 tool call&gt; create_file({&#39;content&#39;: &#39;#!/usr/bin/env python3&#92;n&#92;nfrom litellm i...
 tool result&gt; {}
 assistant&gt; I&#39;ve created agent2.py with a friendly startup message that prints the model being used.
-user&gt; For the three prints and the input call, colorize the part before the &#39;&gt;&#39; using ASCII escape codes (red, green, blue, purple).
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;For the three prints and the input call, colorize the part before the &#39;&gt;&#39; using ASCII escape codes (red, green, blue, purple).&lt;/span&gt;
 tool call&gt; create_file({&#39;content&#39;: &#39;#!/usr/bin/env python3&#92;n&#92;nfrom litellm i...
 tool result&gt; {}
 assistant&gt; I&#39;ve updated agent2.py to colorize the prompt and prints. Red is now used for the user input, green for tool call, blue for tool result, and purple for assistant&#39;s plain output.
-user&gt; Before calling a tool, confirm with the user. If confirmed continue as before, otherwise add a response map to the messages with a &quot;User Refused&quot; error.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Before calling a tool, confirm with the user. If confirmed continue as before, otherwise add a response map to the messages with a &quot;User Refused&quot; error.&lt;/span&gt;
 tool call&gt; create_file({&#39;content&#39;: &#39;#!/usr/bin/env python3&#92;n&#92;nfrom litellm i...
 tool result&gt; {}
 assistant&gt; I&#39;ve updated agent2.py to prompt the user for confirmation before calling any tool. If you enter anything other than &#39;y&#39;, the tool call will be skipped and an error message (&quot;User Refused&quot;) will be added to the messages.&lt;/code&gt;&lt;/pre&gt;
@@ -377,7 +378,7 @@ assistant&gt; I&#39;ve updated agent2.py to prompt the user for confirmation bef
 
 &lt;em&gt;$ ./agent2.py&lt;/em&gt;
 Welcome! Starting agent with model: github_copilot/o3-mini
-&lt;span style=&quot;color: red&quot;&gt;user&lt;/span&gt;&gt; What is in ./greet.txt?
+&lt;span style=&quot;color: red&quot;&gt;user&lt;/span&gt;&gt; &lt;span style=&quot;color: plum&quot;&gt;What is in ./greet.txt?&lt;/span&gt;
 &lt;span style=&quot;color: yellow&quot;&gt;Confirm calling tool &#39;read_file&#39; with arguments {&#39;path&#39;: &#39;./greet.txt&#39;}? (y/N)&lt;/span&gt;&gt; y
 &lt;span style=&quot;color: green&quot;&gt;tool call&lt;/span&gt;&gt; read_file({&#39;path&#39;: &#39;./greet.txt&#39;})
 &lt;span style=&quot;color: blue&quot;&gt;tool result&lt;/span&gt;&gt; {&quot;content&quot;: &quot;hello Joel!&#92;n&quot;}
