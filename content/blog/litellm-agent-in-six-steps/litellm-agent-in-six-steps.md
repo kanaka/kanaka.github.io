@@ -340,7 +340,7 @@ TOOLS_MAP = {
 }
 ```
 
-Prior to out main loop use the `get_tools_param` function to
+Prior to our main loop use the `get_tools_param` function to
 initialize the `tools` value that is passed to the `completion` call:
 
 ```python
