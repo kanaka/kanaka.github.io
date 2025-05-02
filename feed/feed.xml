@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet href="pretty-atom-feed.xsl" type="text/xsl"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en">
+  <title>Blog Title</title>
+  <subtitle>This is a longer description about your blog.</subtitle>
+  <link href="https://example.com/feed/feed.xml" rel="self" />
+  <link href="https://example.com/" />
+  <updated>2025-05-01T00:00:00Z</updated>
+  <id>https://example.com/</id>
+  <author>
+    <name>Your Name</name>
+  </author>
+  <entry>
+    <title>An LLM Coding Agent in 6 incremental steps and less than 130 lines of python</title>
+    <link href="https://example.com/blog/litellm-agent-in-six-steps/" />
+    <updated>2025-05-01T00:00:00Z</updated>
+    <id>https://example.com/blog/litellm-agent-in-six-steps/</id>
+    <content type="html">&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at &lt;a href=&quot;https://github.com/kanaka/litellm-agent&quot;&gt;github.com/kanaka/litellm-agent&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&quot;step-0-prerequisites-uv-litellm-etc&quot;&gt;Step 0: Prerequisites (uv, LiteLLM, etc)&lt;/h1&gt;
+&lt;p&gt;You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Create a directory for your agent:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ &lt;span class=&quot;token function&quot;&gt;mkdir&lt;/span&gt; my-agent
+$ &lt;span class=&quot;token builtin class-name&quot;&gt;cd&lt;/span&gt; my-agent&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Install &lt;code&gt;uv&lt;/code&gt; (if you have not already) and then setup a virtual
+environment:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ &lt;span class=&quot;token function&quot;&gt;curl&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-LsSf&lt;/span&gt; https://astral.sh/uv/install.sh &lt;span class=&quot;token operator&quot;&gt;|&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;sh&lt;/span&gt;
+$ uv venv
+$ &lt;span class=&quot;token builtin class-name&quot;&gt;source&lt;/span&gt; .venv/bin/activate&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Clone a branch of the LiteLLM project that has support for Github
+Copilot models. Then install the local copy of LiteLLM and its
+dependencies into the virtual environment:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ &lt;span class=&quot;token function&quot;&gt;git&lt;/span&gt; clone https://github.com/BerriAI/litellm &lt;span class=&quot;token parameter variable&quot;&gt;-b&lt;/span&gt; litellm_dev_03_05_2025_contributor_prs
+$ uv pip &lt;span class=&quot;token function&quot;&gt;install&lt;/span&gt; litellm/&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
+&lt;h1 id=&quot;step-1-single-api-call&quot;&gt;Step 1: Single API call&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.avif 661w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.webp 661w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.png&quot; alt=&quot;Diagram of Step 1 - Single API call&quot; width=&quot;661&quot; height=&quot;421&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;First, we are going to make a single API &amp;quot;completion&amp;quot; call to our
+chosen LLM model and simply print the result. For this step, we will
+pass the first argument on the command line as the query that we want
+to send the LLM model.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;from&lt;/span&gt; litellm &lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; completion
+&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; sys
+
+model &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;github_copilot/o3-mini&quot;&lt;/span&gt;
+extra_headers &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;editor-version&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;vscode/1.85.1&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; completion&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+    model&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;model&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    extra_headers&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;extra_headers&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    messages&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; sys&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;argv&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;choices&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now run your new &amp;quot;agent&amp;quot;:&lt;/p&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ &lt;span class=&quot;token function&quot;&gt;chmod&lt;/span&gt; +x agent.py
+$ ./agent.py &lt;span class=&quot;token string&quot;&gt;&quot;In a single sentence, define the word &#39;agent&#39;&quot;&lt;/span&gt;
+An agent is someone or something that acts on behalf of another person or entity, or that produces a specific effect.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We make a single call LLM model and provide it with a single &amp;quot;user&amp;quot;
+message. We then extract the response message from the LLM and print
+it. The LiteLLM &lt;code&gt;completion&lt;/code&gt; function is based on OpenAPI defined API.
+While other providers have similar APIs, they do have differences.
+LiteLLM provides a common API that has the same input and output
+format across all the providers.&lt;/p&gt;
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The first time you run your agent with a Github Copilot model, you
+will be shown an 8 character code that you need to fill in at the
+provided github URL in order to authorize this client. Once you do
+this, API access token refreshes will happen automatically.&lt;/li&gt;
+&lt;li&gt;With the Github Copilot free plan, you get 50 &amp;quot;&lt;a href=&quot;https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests&quot;&gt;premium requests&lt;/a&gt;&amp;quot; per
+month. The code above uses &amp;quot;&lt;code&gt;github_copilot/o3-mini&lt;/code&gt;&amp;quot; because it is
+currently the least expensive model with excellent coding ability
+(at 0.33 premium requests per call). The
+&amp;quot;&lt;code&gt;github_copilot/gemini-2.0-flash-001&lt;/code&gt;&amp;quot; model is slightly cheaper
+(at 0.25 per call) but my experience is that it has trouble using
+tools correctly. If you have paid plan then you can switch the model
+to &lt;code&gt;github_copilot/gpt-4&lt;/code&gt; to get unlimited &lt;code&gt;completion&lt;/code&gt; calls.&lt;/li&gt;
+&lt;li&gt;The &amp;quot;editor-version&amp;quot; HTTP header is needed for now in order to use
+the &amp;quot;Github Copilot&amp;quot; functionality in the LiteLLM branch.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;step-2-chat-loop&quot;&gt;Step 2: Chat loop&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/kovDu6KVix-661.avif 661w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/kovDu6KVix-661.webp 661w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/litellm-agent-in-six-steps/kovDu6KVix-661.png&quot; alt=&quot;Diagram of Step 2 - Chat loop&quot; width=&quot;661&quot; height=&quot;421&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;Our current implementation makes a single query, prints the response,
+and then exits. We don&#39;t have a way to &amp;quot;chat&amp;quot; with the model. LLM
+models via the API are essentially stateless. The client program has
+to provide all the state/context for each call.&lt;/p&gt;
+&lt;p&gt;Let&#39;s wrap the completion call and output in a loop. Prior to the loop
+we initialize a messages list (context) with our initial system
+prompt. The loop prompts for a user query, adds this to the context,
+calls the &lt;code&gt;completion&lt;/code&gt; API, and then adds the assistant (LLM model)
+response to the messages list in addition to printing it out.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;messages &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;You are a coding agent&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;system&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        user_input &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&gt; &quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;except&lt;/span&gt; EOFError &lt;span class=&quot;token keyword&quot;&gt;as&lt;/span&gt; e&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;break&lt;/span&gt;
+
+    messages&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; user_input&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; completion&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+        model&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;model&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        extra_headers&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;extra_headers&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        messages&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;messages&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+    resp_message &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;choices&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;message
+    messages&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;model_dump&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    
+    &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;assistant&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot;:&lt;/p&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ ./agent.py
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; List five funny names &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; a Linux computer &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;without any explanation&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;:
+assistant&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; Okay, here are five funny names &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; a Linux computer:
+
+&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;.  Kernel Sanders
+&lt;span class=&quot;token number&quot;&gt;2&lt;/span&gt;.  Blue Screen of Awesome
+&lt;span class=&quot;token number&quot;&gt;3&lt;/span&gt;.  &lt;span class=&quot;token function&quot;&gt;rm&lt;/span&gt; &lt;span class=&quot;token parameter variable&quot;&gt;-rf&lt;/span&gt; /home
+&lt;span class=&quot;token number&quot;&gt;4&lt;/span&gt;.  Stack Overfloweth
+&lt;span class=&quot;token number&quot;&gt;5&lt;/span&gt;.  Binaryoncé
+
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; In one short sentence, explain why the fifth one is funny.
+assistant&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;Binaryoncé&quot;&lt;/span&gt; is funny because it&#39;s a play on the name Beyoncé, implying the computer is a powerful and glamorous diva of the binary world.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The second user query asks about the assistant&#39;s first response.
+A correct answer confirms that the context (messages list) is being
+accumulated correctly, otherwise the assistant would not be able to
+answer the followup.&lt;/p&gt;
+&lt;h1 id=&quot;step-3-tool-calling&quot;&gt;Step 3: Tool calling&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/wuJSFjvRin-661.avif 661w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/wuJSFjvRin-661.webp 661w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/litellm-agent-in-six-steps/wuJSFjvRin-661.png&quot; alt=&quot;Diagram of Step 3 - Tool calling&quot; width=&quot;661&quot; height=&quot;421&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;Our &amp;quot;agent&amp;quot; does not have much agency; it can&#39;t do anything unless it
+can convince the user to act on it&#39;s behalf. If I ask &amp;quot;Show me what&#39;s
+in file ./README.md.&amp;quot;, the assistant will likely answer that it can&#39;t
+do that, but will give suggestions to the user for how to view the
+file themselves.&lt;/p&gt;
+&lt;p&gt;Let&#39;s take a step towards greater agency by defining a tool that the
+assistant can invoke. First, create an API data structure
+that defines tools in a format the assistant understands. The
+following defines a single tool &lt;code&gt;read_file&lt;/code&gt; that the assistant can
+invoke:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; json
+tools &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+        &lt;span class=&quot;token string&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;function&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;token string&quot;&gt;&quot;function&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;token string&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;read_file&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;token string&quot;&gt;&quot;description&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;Read the file at path. Returns a map {&#39;content&#39;:content}&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;token string&quot;&gt;&quot;parameters&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;object&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;properties&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;token string&quot;&gt;&quot;path&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;required&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;path&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We pass this new tools structure in the &lt;code&gt;completion&lt;/code&gt; call:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;    response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; completion&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+        model&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;model&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        extra_headers&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;extra_headers&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        messages&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;messages&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+        tools&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;tools&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;If the assistant decides that it wants to call a tool, then the
+response message will contain a populated &lt;code&gt;tool_calls&lt;/code&gt; field. If this
+field is set then we need to parse each element to extract the
+function name and arguments, perform the actions, and add a tool call
+response with the results to the context (messages list).&lt;/p&gt;
+&lt;p&gt;First lets add a &lt;code&gt;trunc&lt;/code&gt; function for abbreviating long tool call
+arguments and output:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;trunc&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; s&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;...&#39;&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; s&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then, replace the assistant output message line with the following:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;    tool_calls &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;tool_calls
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;not&lt;/span&gt; tool_calls&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;assistant&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;continue&lt;/span&gt;
+
+    &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; tc &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; tool_calls&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        fn &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; tc&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;function&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;read_file&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            fn_args &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; json&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;loads&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;arguments&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;calling read_file(&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;fn_args&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;)&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            fn_result &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;**&lt;/span&gt;fn_args&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;read&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+            res_str &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; json&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;dumps&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fn_result&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&quot;
+            &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;result: &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;res_str&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            messages&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;tool&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;tool_call_id&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; tc&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;id&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; res_str&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;raise&lt;/span&gt; Exception&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;Unknown tool call: &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;There is one additional change that we need to make to the top of our
+loop. If the last message from the assistant is a tool call, then we
+should skip the user input/prompt and just send the tool call result
+that we added:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; messages&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;!=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;tool&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            user_input &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&gt; &quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;except&lt;/span&gt; EOFError &lt;span class=&quot;token keyword&quot;&gt;as&lt;/span&gt; e&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;break&lt;/span&gt;
+
+        messages&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; user_input&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;role&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot;:&lt;/p&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ ./agent.py
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; What is the first line of &lt;span class=&quot;token function&quot;&gt;file&lt;/span&gt; ./agent.py?
+calling read_file&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;file&#39;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;./agent.py&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+result: &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &quot;#&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;/usr/bin/env python3&lt;span class=&quot;token punctuation&quot;&gt;&#92;&lt;/span&gt;n&lt;span class=&quot;token punctuation&quot;&gt;&#92;&lt;/span&gt;nfrom litellm &lt;span class=&quot;token function&quot;&gt;import&lt;/span&gt; completio&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.
+assistant&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; The first line of the &lt;span class=&quot;token function&quot;&gt;file&lt;/span&gt; ./agent.py is &lt;span class=&quot;token comment&quot;&gt;#!/usr/bin/env python3.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&quot;step-4-generic-tools-interface&quot;&gt;Step 4: Generic tools interface&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.avif 661w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.webp 661w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.png&quot; alt=&quot;Diagram of Step 4 - generic tools&quot; width=&quot;661&quot; height=&quot;581&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;The current implementation uses a hard-coded definition for the
+&lt;code&gt;read_file&lt;/code&gt; tool that is passed to the &lt;code&gt;completion&lt;/code&gt; API. Instead of
+creating a new definition for each tool that we want to support, we
+can use python&#39;s introspection to generate this definition from the
+python functions themselves.&lt;/p&gt;
+&lt;p&gt;Define a function that that takes a map of tools names to functions
+and returns the tools parameter value needed for the &lt;code&gt;completion&lt;/code&gt; API:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; inspect
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;get_tools_param&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;tools_map&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    typemap &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;integer&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;float&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;number&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;bool&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;boolean&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+    tools &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; name&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; fn &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; tools_map&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;items&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        props&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; req &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; p &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; inspect&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;signature&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;parameters&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;values&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;kind&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;startswith&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;VAR&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;  &lt;span class=&quot;token comment&quot;&gt;# skip *args/**kw&lt;/span&gt;
+                &lt;span class=&quot;token keyword&quot;&gt;continue&lt;/span&gt;
+            props&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; typemap&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;get&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;annotation&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;string&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;default &lt;span class=&quot;token keyword&quot;&gt;is&lt;/span&gt; p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;empty&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+                req&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;p&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+        tools&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+            &lt;span class=&quot;token string&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;function&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+            &lt;span class=&quot;token string&quot;&gt;&quot;function&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;name&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; name&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;description&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;__doc__ &lt;span class=&quot;token keyword&quot;&gt;or&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;strip&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                &lt;span class=&quot;token string&quot;&gt;&quot;parameters&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                    &lt;span class=&quot;token string&quot;&gt;&quot;type&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;object&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;token string&quot;&gt;&quot;properties&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; props&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+                    &lt;span class=&quot;token operator&quot;&gt;**&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;required&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; req&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; req &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+                &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+        &lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; tools&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Then define the tool functions with a sufficient docstring and result
+format that makes it clear to the assistant how the tools should be
+used:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;read_file&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Read the file at path.
+    Returns a map {&#39;content&#39;:content} (raw file string in content)&quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;read&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; subprocess
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;ls_dir&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Runs `ls -la path` to list files in the current directory.
+    Returns a map {&#39;stdout&#39;:stdout,&#39;stderr&#39;:stderr,&#39;returncode&#39;:code}&quot;&quot;&quot;&lt;/span&gt;
+    cp &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; subprocess&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;run&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;ls&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;-la&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; path&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; capture_output&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; text&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    res &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;k&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;getattr&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;cp&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; k&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; k &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;stdout&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;stderr&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;returncode&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; res&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Remove the global &lt;code&gt;tools&lt;/code&gt; variable and add a new tools map (after the
+tool functions) that enumerates the available tools including the new
+&lt;code&gt;ls_dir&lt;/code&gt; tool/function.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;TOOLS_MAP &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;read_file&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; read_file&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;ls_dir&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; ls_dir&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Prior to out main loop use the &lt;code&gt;get_tools_param&lt;/code&gt; function to
+initialize the &lt;code&gt;tools&lt;/code&gt; value that is passed to the &lt;code&gt;completion&lt;/code&gt; call:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;tools &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; get_tools_param&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;TOOLS_MAP&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, adjust the tool calling loop to use a more generic mechanism
+for calling the tools defined in the &lt;code&gt;TOOLS_MAP&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;    &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; tc &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; tool_calls&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        fn &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; tc&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;function&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; TOOLS_MAP&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+            fn_args &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; json&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;loads&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;arguments&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;calling &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;fn_args&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;)&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            fn_result &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; TOOLS_MAP&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;**&lt;/span&gt;fn_args&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&#39;s try it out:&lt;/p&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ ./agent.py
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; There is a python &lt;span class=&quot;token function&quot;&gt;file&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; this dir. Use your tools to &lt;span class=&quot;token function&quot;&gt;find&lt;/span&gt; it, &lt;span class=&quot;token builtin class-name&quot;&gt;read&lt;/span&gt; it, and summarize it &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; one sentence.
+calling ls_dir&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;path&#39;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;.&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+result: &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;stdout&quot;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;total 8&lt;span class=&quot;token entity&quot; title=&quot;&#92;n&quot;&gt;&#92;n&lt;/span&gt;drwxrwxr-x@  6 joelmartin  staff   192 May  1 0...
+calling read_file({&#39;path&#39;: &#39;agent.py&#39;})
+result: {&quot;&lt;/span&gt;content&lt;span class=&quot;token string&quot;&gt;&quot;: &quot;&lt;/span&gt;#&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;/usr/bin/env python3&lt;span class=&quot;token punctuation&quot;&gt;&#92;&lt;/span&gt;n&lt;span class=&quot;token punctuation&quot;&gt;&#92;&lt;/span&gt;nfrom litellm &lt;span class=&quot;token function&quot;&gt;import&lt;/span&gt; completio&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.
+assistant&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; This Python script defines an agent that uses the litellm library to interact with a language model, allowing the user to provide input and receive responses, potentially utilizing tools like reading files and listing directory contents based on the model&#39;s tool calls.&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&quot;step-5-file-editing-tools&quot;&gt;Step 5: File editing tools&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.avif 661w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.webp 661w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.png&quot; alt=&quot;Diagram of Step 5 - file editing tools&quot; width=&quot;661&quot; height=&quot;581&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;Our agent has the ability to list and read files, now let&#39;s make the
+final improvement that will actually turn this into a coding agent.&lt;/p&gt;
+&lt;p&gt;Define the functions that will allow the agent to edit and
+create new files and add them to the &lt;code&gt;TOOLS_MAP&lt;/code&gt;:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;edit_file&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; replace&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Edit the file at &#39;path&#39; replacing the first occurence of
+    &#39;match&#39; string with &#39;replace&#39; string. &#39;match&#39; and &#39;replace&#39; are
+    raw strings and should not have escaped newlines, backslashes, etc.
+    Returns an empty map on success&quot;&quot;&quot;&lt;/span&gt;
+    orig &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;read&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    new &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; orig&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;replace&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; replace&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; new &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; orig&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;raise&lt;/span&gt; Exception&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;match string not found&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;write&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;new&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;create_file&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; content&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Create (or replace) file at &#39;path&#39; with &#39;content&#39;.
+    &#39;content&#39; is a raw string and does not need extra escaping.
+    Returns an empty map on success&quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;write&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+TOOLS_MAP &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;read_file&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; read_file&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;ls_dir&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; ls_dir&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;edit_file&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; edit_file&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;create_file&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; create_file&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Those new tools enable a large amount of agentic coding ability. Let&#39;s
+improve the error handling and format of the tool calling messages:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;            &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;tool call&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;fn_args&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;)&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+                fn_result &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; TOOLS_MAP&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;fn&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;**&lt;/span&gt;fn_args&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            &lt;span class=&quot;token keyword&quot;&gt;except&lt;/span&gt; Exception &lt;span class=&quot;token keyword&quot;&gt;as&lt;/span&gt; e&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+                fn_result &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;error&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;e&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+            res_str &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; json&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;dumps&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;fn_result&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&quot;
+            &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;tool result&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;res_str&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+            message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;append&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;
+                &lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now let&#39;s use the new editing ability to make changes to a file:&lt;/p&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ ./agent.py
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; Change the greeting &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; the text &lt;span class=&quot;token function&quot;&gt;file&lt;/span&gt; to use my first name.
+assistant&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; Could you please clarify &lt;span class=&quot;token function&quot;&gt;which&lt;/span&gt; text &lt;span class=&quot;token function&quot;&gt;file&lt;/span&gt; you&lt;span class=&quot;token string&quot;&gt;&#39;d like to update? Also, let me know your first name so I can make the correct change.
+user&gt; My name is Joel. You figure out the file.
+tool call&gt; edit_file({&#39;&lt;/span&gt;match&lt;span class=&quot;token string&quot;&gt;&#39;: &#39;&lt;/span&gt;Hello&lt;span class=&quot;token string&quot;&gt;&#39;, &#39;&lt;/span&gt;replace&lt;span class=&quot;token string&quot;&gt;&#39;: &#39;&lt;/span&gt;Hello Joel&lt;span class=&quot;token string&quot;&gt;&#39;, &#39;&lt;/span&gt;path&lt;span class=&quot;token string&quot;&gt;&#39;: &#39;&lt;/span&gt;gr&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.
+tool result&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;error&quot;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;[Errno 2] No such file or directory: &#39;greeting.txt&#39;&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+tool call&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; ls_dir&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;path&#39;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;.&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+tool result&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;stdout&quot;&lt;/span&gt;&lt;span class=&quot;token builtin class-name&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;total 24&lt;span class=&quot;token entity&quot; title=&quot;&#92;n&quot;&gt;&#92;n&lt;/span&gt;drwxrwxr-x@  7 joelmartin  staff   224 Ma...
+tool call&gt; read_file({&#39;path&#39;: &#39;greet.txt&#39;})
+tool result&gt; {&quot;&lt;/span&gt;content&lt;span class=&quot;token string&quot;&gt;&quot;: &quot;&lt;/span&gt;hello NAME&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;&#92;&lt;/span&gt;n&lt;span class=&quot;token string&quot;&gt;&quot;}
+tool call&gt; edit_file({&#39;match&#39;: &#39;NAME&#39;, &#39;replace&#39;: &#39;Joel&#39;, &#39;path&#39;: &#39;greet.txt&#39;})
+tool result&gt; {}
+assistant&gt; I found the file &quot;&lt;/span&gt;greet.txt&lt;span class=&quot;token string&quot;&gt;&quot;. I&#39;ve changed the greeting so that it now says &quot;&lt;/span&gt;hello Joel&lt;span class=&quot;token operator&quot;&gt;!&lt;/span&gt;&quot;.&lt;/code&gt;&lt;/pre&gt;
+&lt;h1 id=&quot;step-6-final-touch-ups&quot;&gt;Step 6: Final touch ups&lt;/h1&gt;
+&lt;p&gt;Those four simple tools/abilities (list files, read a file, create a file, and
+edit a file) are enough to give our agent the ability to do coding
+tasks. So let&#39;s use our agent itself to make some final improvements
+to its own code.&lt;/p&gt;
+&lt;pre class=&quot;language-shell&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-shell&quot;&gt;$ ./agent.py
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; Copy agent.py to agent2.py where we will &lt;span class=&quot;token function&quot;&gt;make&lt;/span&gt; changes. Start by adding a friendly startup message &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;with model&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;.
+TODO/TBD
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; For the three prints and the input call, colorize the part before the &lt;span class=&quot;token string&quot;&gt;&#39;&gt;&#39;&lt;/span&gt; using ASCII escape codes &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;red, green, blue, purple&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;.
+user&lt;span class=&quot;token operator&quot;&gt;&gt;&lt;/span&gt; Before calling a tool, confirm with the user. If confirmed &lt;span class=&quot;token builtin class-name&quot;&gt;continue&lt;/span&gt; as before, otherwise &lt;span class=&quot;token function&quot;&gt;add&lt;/span&gt; a response map to the messages with a &lt;span class=&quot;token string&quot;&gt;&quot;User Refused&quot;&lt;/span&gt; error.
+TODO/TBD
+&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.ELIDED&lt;span class=&quot;token punctuation&quot;&gt;..&lt;/span&gt;.
+
+$ ./agent2.py&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The full code for each of the above steps can be found at &lt;a href=&quot;https://github.com/kanaka/litellm-agent&quot;&gt;github.com/kanaka/litellm-agent&lt;/a&gt;.&lt;/p&gt;
+&lt;h1 id=&quot;step-7-you-take-it-from-here&quot;&gt;Step 7: You take it from here!&lt;/h1&gt;
+&lt;p&gt;You now have a basic working coding agent. The next steps are up to
+you. Here are some ideas:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Add streaming output so that you can see the progress of the model
+as it is generating longer responses.&lt;/li&gt;
+&lt;li&gt;Make the tool confirmation more sophisticated and allow specific
+actions or whole tools to be run without confirmation the next time.&lt;/li&gt;
+&lt;li&gt;Add proper python argument parsing. Allow the model name, system
+prompt, tool confirmation mode, etc to be specified as command
+line. Allow the initial query to optionally be specified on the
+command line (like step 1).&lt;/li&gt;
+&lt;li&gt;Add the ability to continue a previous session (save/pickle the
+context and reload it if requested).&lt;/li&gt;
+&lt;li&gt;Give it the ability to run tests.&lt;/li&gt;
+&lt;li&gt;Get it working reliably with other models. For example,
+&lt;code&gt;github_copilot/gemini-2.0-flash-001&lt;/code&gt; is the cheapest model but it
+has trouble using the tools the way they are currently defined.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
+</feed>

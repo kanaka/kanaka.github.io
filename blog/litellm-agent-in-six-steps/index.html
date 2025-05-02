@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>An LLM Coding Agent in 6 incremental steps and less than 130 lines of python</title>
+		<meta name="description" content="I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account and no LLM API sign-up needed to get started.">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Joel Martin&#39;s Weblog">
+		
+		
+		
+		
+		<style>/* This is an arbitrary CSS string added to the bundle */
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+@view-transition {
+	navigation: auto;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+/* Fluid images via https://www.zachleat.com/web/fluid-images/ */
+img{
+  max-width: 100%;
+}
+img[width][height] {
+  height: auto;
+}
+img[src$=".svg"] {
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+video,
+iframe {
+	width: 100%;
+	height: auto;
+}
+iframe {
+	aspect-ratio: 16/9;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main,
+footer {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	display: flex;
+	justify-content: space-between;
+	gap: .5em 1em;
+	list-style: "";
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+.links-nextprev > * {
+	flex-grow: 1;
+}
+.links-nextprev-next {
+	text-align: right;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	overflow-x: auto;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	flex-grow: 1;
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	gap: .5em 1em;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	counter-reset: start-from var(--postlist-index);
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+/* smaller code block font size. !important needed to override theme
+ * which inserts it's CSS late */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 0.80rem !important;          /* e.g. 14 px if body text is 16 px  */
+  line-height: 1.4 !important;
+}
+
+/* do not capitalize tags/labels */
+.post-tag {
+	text-transform: unset;
+}
+/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}</style>
+		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Joel Martin&#39;s Weblog</a>
+			<nav>
+				<h2 class="visually-hidden" id="top-level-navigation-menu">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About</a></li>
+					<li class="nav-item"><a href="/feed/feed.xml">Feed</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			<heading-anchors>
+				
+
+
+<h1 id="an-llm-coding-agent-in-6-incremental-steps-and-less-than-130-lines-of-python">An LLM Coding Agent in 6 incremental steps and less than 130 lines of python</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2025-05-01">01 May 2025</time></li>
+	<li><a href="/tags/llm/" class="post-tag">llm</a>, </li>
+	<li><a href="/tags/ai/" class="post-tag">ai</a>, </li>
+	<li><a href="/tags/python/" class="post-tag">python</a>, </li>
+	<li><a href="/tags/software/" class="post-tag">software</a>, </li>
+	<li><a href="/tags/coding/" class="post-tag">coding</a>, </li>
+	<li><a href="/tags/agent/" class="post-tag">agent</a>, </li>
+	<li><a href="/tags/agents/" class="post-tag">agents</a>, </li>
+	<li><a href="/tags/litellm/" class="post-tag">litellm</a>, </li>
+	<li><a href="/tags/api/" class="post-tag">API</a>, </li>
+	<li><a href="/tags/github-copilot/" class="post-tag">GitHub Copilot</a>, </li>
+	<li><a href="/tags/github/" class="post-tag">Github</a>, </li>
+	<li><a href="/tags/copilot/" class="post-tag">Copilot</a></li>
+</ul>
+
+<p>In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.</p>
+<h1 id="step-0-prerequisites-uv-litellm-etc">Step 0: Prerequisites (uv, LiteLLM, etc)</h1>
+<p>You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.</p>
+<ul>
+<li>Create a directory for your agent:</li>
+</ul>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">mkdir</span> my-agent
+$ <span class="token builtin class-name">cd</span> my-agent</code></pre>
+<ul>
+<li>Install <code>uv</code> (if you have not already) and then setup a virtual
+environment:</li>
+</ul>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">curl</span> <span class="token parameter variable">-LsSf</span> https://astral.sh/uv/install.sh <span class="token operator">|</span> <span class="token function">sh</span>
+$ uv venv
+$ <span class="token builtin class-name">source</span> .venv/bin/activate</code></pre>
+<ul>
+<li>Clone a branch of the LiteLLM project that has support for Github
+Copilot models. Then install the local copy of LiteLLM and its
+dependencies into the virtual environment:</li>
+</ul>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">git</span> clone https://github.com/BerriAI/litellm <span class="token parameter variable">-b</span> litellm_dev_03_05_2025_contributor_prs
+$ uv pip <span class="token function">install</span> litellm/</code></pre>
+<p>We are now ready to start the fun!</p>
+<h1 id="step-1-single-api-call">Step 1: Single API call</h1>
+<picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/xBMWhq-GCX-661.png" alt="Diagram of Step 1 - Single API call" width="661" height="421"></picture>
+<p>First, we are going to make a single API &quot;completion&quot; call to our
+chosen LLM model and simply print the result. For this step, we will
+pass the first argument on the command line as the query that we want
+to send the LLM model.</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+
+<span class="token keyword">from</span> litellm <span class="token keyword">import</span> completion
+<span class="token keyword">import</span> sys
+
+model <span class="token operator">=</span> <span class="token string">"github_copilot/o3-mini"</span>
+extra_headers <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"editor-version"</span><span class="token punctuation">:</span> <span class="token string">"vscode/1.85.1"</span><span class="token punctuation">}</span>
+
+response <span class="token operator">=</span> completion<span class="token punctuation">(</span>
+    model<span class="token operator">=</span>model<span class="token punctuation">,</span>
+    extra_headers<span class="token operator">=</span>extra_headers<span class="token punctuation">,</span>
+    messages<span class="token operator">=</span><span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">,</span> <span class="token string">"role"</span><span class="token punctuation">:</span><span class="token string">"user"</span><span class="token punctuation">}</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message<span class="token punctuation">.</span>content<span class="token punctuation">)</span></code></pre>
+<p>Now run your new &quot;agent&quot;:</p>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ <span class="token function">chmod</span> +x agent.py
+$ ./agent.py <span class="token string">"In a single sentence, define the word 'agent'"</span>
+An agent is someone or something that acts on behalf of another person or entity, or that produces a specific effect.</code></pre>
+<p>We make a single call LLM model and provide it with a single &quot;user&quot;
+message. We then extract the response message from the LLM and print
+it. The LiteLLM <code>completion</code> function is based on OpenAPI defined API.
+While other providers have similar APIs, they do have differences.
+LiteLLM provides a common API that has the same input and output
+format across all the providers.</p>
+<p>Notes:</p>
+<ul>
+<li>The first time you run your agent with a Github Copilot model, you
+will be shown an 8 character code that you need to fill in at the
+provided github URL in order to authorize this client. Once you do
+this, API access token refreshes will happen automatically.</li>
+<li>With the Github Copilot free plan, you get 50 &quot;<a href="https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests">premium requests</a>&quot; per
+month. The code above uses &quot;<code>github_copilot/o3-mini</code>&quot; because it is
+currently the least expensive model with excellent coding ability
+(at 0.33 premium requests per call). The
+&quot;<code>github_copilot/gemini-2.0-flash-001</code>&quot; model is slightly cheaper
+(at 0.25 per call) but my experience is that it has trouble using
+tools correctly. If you have paid plan then you can switch the model
+to <code>github_copilot/gpt-4</code> to get unlimited <code>completion</code> calls.</li>
+<li>The &quot;editor-version&quot; HTTP header is needed for now in order to use
+the &quot;Github Copilot&quot; functionality in the LiteLLM branch.</li>
+</ul>
+<h1 id="step-2-chat-loop">Step 2: Chat loop</h1>
+<picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/kovDu6KVix-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/kovDu6KVix-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/kovDu6KVix-661.png" alt="Diagram of Step 2 - Chat loop" width="661" height="421"></picture>
+<p>Our current implementation makes a single query, prints the response,
+and then exits. We don't have a way to &quot;chat&quot; with the model. LLM
+models via the API are essentially stateless. The client program has
+to provide all the state/context for each call.</p>
+<p>Let's wrap the completion call and output in a loop. Prior to the loop
+we initialize a messages list (context) with our initial system
+prompt. The loop prompts for a user query, adds this to the context,
+calls the <code>completion</code> API, and then adds the assistant (LLM model)
+response to the messages list in addition to printing it out.</p>
+<pre class="language-python" tabindex="0"><code class="language-python">messages <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token string">"You are a coding agent"</span><span class="token punctuation">,</span> <span class="token string">"role"</span><span class="token punctuation">:</span><span class="token string">"system"</span><span class="token punctuation">}</span><span class="token punctuation">]</span>
+
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        user_input <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"user> "</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> EOFError <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+        <span class="token keyword">break</span>
+
+    messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> user_input<span class="token punctuation">,</span> <span class="token string">"role"</span><span class="token punctuation">:</span><span class="token string">"user"</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+
+    response <span class="token operator">=</span> completion<span class="token punctuation">(</span>
+        model<span class="token operator">=</span>model<span class="token punctuation">,</span>
+        extra_headers<span class="token operator">=</span>extra_headers<span class="token punctuation">,</span>
+        messages<span class="token operator">=</span>messages<span class="token punctuation">,</span>
+    <span class="token punctuation">)</span>
+
+    resp_message <span class="token operator">=</span> response<span class="token punctuation">.</span>choices<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">.</span>message
+    messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span>resp_message<span class="token punctuation">.</span>model_dump<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"assistant> </span><span class="token interpolation"><span class="token punctuation">{</span>resp_message<span class="token punctuation">.</span>content<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span></code></pre>
+<p>Run our new version of the &quot;agent&quot;:</p>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
+user<span class="token operator">></span> List five funny names <span class="token keyword">for</span> a Linux computer <span class="token punctuation">(</span>without any explanation<span class="token punctuation">)</span>:
+assistant<span class="token operator">></span> Okay, here are five funny names <span class="token keyword">for</span> a Linux computer:
+
+<span class="token number">1</span>.  Kernel Sanders
+<span class="token number">2</span>.  Blue Screen of Awesome
+<span class="token number">3</span>.  <span class="token function">rm</span> <span class="token parameter variable">-rf</span> /home
+<span class="token number">4</span>.  Stack Overfloweth
+<span class="token number">5</span>.  Binaryoncé
+
+user<span class="token operator">></span> In one short sentence, explain why the fifth one is funny.
+assistant<span class="token operator">></span> <span class="token string">"Binaryoncé"</span> is funny because it's a play on the name Beyoncé, implying the computer is a powerful and glamorous diva of the binary world.</code></pre>
+<p>The second user query asks about the assistant's first response.
+A correct answer confirms that the context (messages list) is being
+accumulated correctly, otherwise the assistant would not be able to
+answer the followup.</p>
+<h1 id="step-3-tool-calling">Step 3: Tool calling</h1>
+<picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/wuJSFjvRin-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/wuJSFjvRin-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/wuJSFjvRin-661.png" alt="Diagram of Step 3 - Tool calling" width="661" height="421"></picture>
+<p>Our &quot;agent&quot; does not have much agency; it can't do anything unless it
+can convince the user to act on it's behalf. If I ask &quot;Show me what's
+in file ./README.md.&quot;, the assistant will likely answer that it can't
+do that, but will give suggestions to the user for how to view the
+file themselves.</p>
+<p>Let's take a step towards greater agency by defining a tool that the
+assistant can invoke. First, create an API data structure
+that defines tools in a format the assistant understands. The
+following defines a single tool <code>read_file</code> that the assistant can
+invoke:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">import</span> json
+tools <span class="token operator">=</span> <span class="token punctuation">[</span>
+    <span class="token punctuation">{</span>
+        <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"function"</span><span class="token punctuation">,</span>
+        <span class="token string">"function"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+            <span class="token string">"name"</span><span class="token punctuation">:</span> <span class="token string">"read_file"</span><span class="token punctuation">,</span>
+            <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token string">"Read the file at path. Returns a map {'content':content}"</span><span class="token punctuation">,</span>
+            <span class="token string">"parameters"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+                <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"object"</span><span class="token punctuation">,</span>
+                <span class="token string">"properties"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+                    <span class="token string">"path"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"string"</span><span class="token punctuation">}</span><span class="token punctuation">,</span>
+                <span class="token punctuation">}</span><span class="token punctuation">,</span>
+                <span class="token string">"required"</span><span class="token punctuation">:</span> <span class="token punctuation">[</span><span class="token string">"path"</span><span class="token punctuation">]</span>
+            <span class="token punctuation">}</span><span class="token punctuation">,</span>
+        <span class="token punctuation">}</span><span class="token punctuation">,</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">]</span></code></pre>
+<p>We pass this new tools structure in the <code>completion</code> call:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">    response <span class="token operator">=</span> completion<span class="token punctuation">(</span>
+        model<span class="token operator">=</span>model<span class="token punctuation">,</span>
+        extra_headers<span class="token operator">=</span>extra_headers<span class="token punctuation">,</span>
+        messages<span class="token operator">=</span>messages<span class="token punctuation">,</span>
+        tools<span class="token operator">=</span>tools<span class="token punctuation">,</span>
+    <span class="token punctuation">)</span></code></pre>
+<p>If the assistant decides that it wants to call a tool, then the
+response message will contain a populated <code>tool_calls</code> field. If this
+field is set then we need to parse each element to extract the
+function name and arguments, perform the actions, and add a tool call
+response with the results to the context (messages list).</p>
+<p>First lets add a <code>trunc</code> function for abbreviating long tool call
+arguments and output:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">trunc</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token builtin">max</span><span class="token operator">=</span><span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> s<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token builtin">max</span><span class="token operator">-</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token string">'...'</span> <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token builtin">max</span> <span class="token keyword">else</span> s</code></pre>
+<p>Then, replace the assistant output message line with the following:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">    tool_calls <span class="token operator">=</span> resp_message<span class="token punctuation">.</span>tool_calls
+    <span class="token keyword">if</span> <span class="token keyword">not</span> tool_calls<span class="token punctuation">:</span>
+        <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"assistant> </span><span class="token interpolation"><span class="token punctuation">{</span>resp_message<span class="token punctuation">.</span>content<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
+        <span class="token keyword">continue</span>
+
+    <span class="token keyword">for</span> tc <span class="token keyword">in</span> tool_calls<span class="token punctuation">:</span>
+        fn <span class="token operator">=</span> tc<span class="token punctuation">[</span><span class="token string">'function'</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> fn<span class="token punctuation">.</span>name <span class="token operator">==</span> <span class="token string">"read_file"</span><span class="token punctuation">:</span>
+            fn_args <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>fn<span class="token punctuation">.</span>arguments<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"calling read_file(</span><span class="token interpolation"><span class="token punctuation">{</span>fn_args<span class="token punctuation">}</span></span><span class="token string">)"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            fn_result <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token builtin">open</span><span class="token punctuation">(</span><span class="token operator">**</span>fn_args<span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+            res_str <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>fn_result<span class="token punctuation">)</span>"
+            <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"result: </span><span class="token interpolation"><span class="token punctuation">{</span>res_str<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
+                <span class="token string">"role"</span><span class="token punctuation">:</span> <span class="token string">"tool"</span><span class="token punctuation">,</span>
+                <span class="token string">"tool_call_id"</span><span class="token punctuation">:</span> tc<span class="token punctuation">[</span><span class="token string">'id'</span><span class="token punctuation">]</span><span class="token punctuation">,</span>
+                <span class="token string">"name"</span><span class="token punctuation">:</span> fn<span class="token punctuation">.</span>name<span class="token punctuation">,</span>
+                <span class="token string">"content"</span><span class="token punctuation">:</span> res_str<span class="token punctuation">,</span>
+            <span class="token punctuation">}</span><span class="token punctuation">)</span>
+        <span class="token keyword">else</span><span class="token punctuation">:</span>
+            <span class="token keyword">raise</span> Exception<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"Unknown tool call: </span><span class="token interpolation"><span class="token punctuation">{</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span></code></pre>
+<p>There is one additional change that we need to make to the top of our
+loop. If the last message from the assistant is a tool call, then we
+should skip the user input/prompt and just send the tool call result
+that we added:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">    <span class="token keyword">if</span> messages<span class="token punctuation">[</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">[</span><span class="token string">"role"</span><span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token string">"tool"</span><span class="token punctuation">:</span>
+        <span class="token keyword">try</span><span class="token punctuation">:</span>
+            user_input <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"user> "</span><span class="token punctuation">)</span>
+        <span class="token keyword">except</span> EOFError <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+            <span class="token keyword">break</span>
+
+        messages<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> user_input<span class="token punctuation">,</span> <span class="token string">"role"</span><span class="token punctuation">:</span><span class="token string">"user"</span><span class="token punctuation">}</span><span class="token punctuation">)</span></code></pre>
+<p>Run our new version of the &quot;agent&quot;:</p>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
+user<span class="token operator">></span> What is the first line of <span class="token function">file</span> ./agent.py?
+calling read_file<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'file'</span><span class="token builtin class-name">:</span> <span class="token string">'./agent.py'</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+result: <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token builtin class-name">:</span> "#<span class="token operator">!</span>/usr/bin/env python3<span class="token punctuation">\</span>n<span class="token punctuation">\</span>nfrom litellm <span class="token function">import</span> completio<span class="token punctuation">..</span>.
+assistant<span class="token operator">></span> The first line of the <span class="token function">file</span> ./agent.py is <span class="token comment">#!/usr/bin/env python3.</span></code></pre>
+<h1 id="step-4-generic-tools-interface">Step 4: Generic tools interface</h1>
+<picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/pH2GiUzlw3-661.png" alt="Diagram of Step 4 - generic tools" width="661" height="581"></picture>
+<p>The current implementation uses a hard-coded definition for the
+<code>read_file</code> tool that is passed to the <code>completion</code> API. Instead of
+creating a new definition for each tool that we want to support, we
+can use python's introspection to generate this definition from the
+python functions themselves.</p>
+<p>Define a function that that takes a map of tools names to functions
+and returns the tools parameter value needed for the <code>completion</code> API:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">import</span> inspect
+
+<span class="token keyword">def</span> <span class="token function">get_tools_param</span><span class="token punctuation">(</span>tools_map<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    typemap <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token builtin">int</span><span class="token punctuation">:</span> <span class="token string">"integer"</span><span class="token punctuation">,</span> <span class="token builtin">float</span><span class="token punctuation">:</span> <span class="token string">"number"</span><span class="token punctuation">,</span> <span class="token builtin">bool</span><span class="token punctuation">:</span> <span class="token string">"boolean"</span><span class="token punctuation">}</span>
+    tools <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+    <span class="token keyword">for</span> name<span class="token punctuation">,</span> fn <span class="token keyword">in</span> tools_map<span class="token punctuation">.</span>items<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+        props<span class="token punctuation">,</span> req <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">,</span> <span class="token punctuation">[</span><span class="token punctuation">]</span>
+        <span class="token keyword">for</span> p <span class="token keyword">in</span> inspect<span class="token punctuation">.</span>signature<span class="token punctuation">(</span>fn<span class="token punctuation">)</span><span class="token punctuation">.</span>parameters<span class="token punctuation">.</span>values<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+            <span class="token keyword">if</span> p<span class="token punctuation">.</span>kind<span class="token punctuation">.</span>name<span class="token punctuation">.</span>startswith<span class="token punctuation">(</span><span class="token string">"VAR"</span><span class="token punctuation">)</span><span class="token punctuation">:</span>  <span class="token comment"># skip *args/**kw</span>
+                <span class="token keyword">continue</span>
+            props<span class="token punctuation">[</span>p<span class="token punctuation">.</span>name<span class="token punctuation">]</span> <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"type"</span><span class="token punctuation">:</span> typemap<span class="token punctuation">.</span>get<span class="token punctuation">(</span>p<span class="token punctuation">.</span>annotation<span class="token punctuation">,</span> <span class="token string">"string"</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+            <span class="token keyword">if</span> p<span class="token punctuation">.</span>default <span class="token keyword">is</span> p<span class="token punctuation">.</span>empty<span class="token punctuation">:</span>
+                req<span class="token punctuation">.</span>append<span class="token punctuation">(</span>p<span class="token punctuation">.</span>name<span class="token punctuation">)</span>
+        tools<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
+            <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"function"</span><span class="token punctuation">,</span>
+            <span class="token string">"function"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+                <span class="token string">"name"</span><span class="token punctuation">:</span> name<span class="token punctuation">,</span>
+                <span class="token string">"description"</span><span class="token punctuation">:</span> <span class="token punctuation">(</span>fn<span class="token punctuation">.</span>__doc__ <span class="token keyword">or</span> <span class="token string">""</span><span class="token punctuation">)</span><span class="token punctuation">.</span>strip<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">,</span>
+                <span class="token string">"parameters"</span><span class="token punctuation">:</span> <span class="token punctuation">{</span>
+                    <span class="token string">"type"</span><span class="token punctuation">:</span> <span class="token string">"object"</span><span class="token punctuation">,</span>
+                    <span class="token string">"properties"</span><span class="token punctuation">:</span> props<span class="token punctuation">,</span>
+                    <span class="token operator">**</span><span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">"required"</span><span class="token punctuation">:</span> req<span class="token punctuation">}</span> <span class="token keyword">if</span> req <span class="token keyword">else</span> <span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+                <span class="token punctuation">}</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span><span class="token punctuation">)</span>
+    <span class="token keyword">return</span> tools</code></pre>
+<p>Then define the tool functions with a sufficient docstring and result
+format that makes it clear to the assistant how the tools should be
+used:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">read_file</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Read the file at path.
+    Returns a map {'content':content} (raw file string in content)"""</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+<span class="token keyword">import</span> subprocess
+
+<span class="token keyword">def</span> <span class="token function">ls_dir</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Runs `ls -la path` to list files in the current directory.
+    Returns a map {'stdout':stdout,'stderr':stderr,'returncode':code}"""</span>
+    cp <span class="token operator">=</span> subprocess<span class="token punctuation">.</span>run<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"ls"</span><span class="token punctuation">,</span> <span class="token string">"-la"</span><span class="token punctuation">,</span> path<span class="token punctuation">]</span><span class="token punctuation">,</span> capture_output<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> text<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    res <span class="token operator">=</span> <span class="token punctuation">{</span>k<span class="token punctuation">:</span> <span class="token builtin">getattr</span><span class="token punctuation">(</span>cp<span class="token punctuation">,</span> k<span class="token punctuation">)</span> <span class="token keyword">for</span> k <span class="token keyword">in</span> <span class="token punctuation">(</span><span class="token string">'stdout'</span><span class="token punctuation">,</span> <span class="token string">'stderr'</span><span class="token punctuation">,</span> <span class="token string">'returncode'</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token keyword">return</span> res</code></pre>
+<p>Remove the global <code>tools</code> variable and add a new tools map (after the
+tool functions) that enumerates the available tools including the new
+<code>ls_dir</code> tool/function.</p>
+<pre class="language-python" tabindex="0"><code class="language-python">TOOLS_MAP <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"read_file"</span><span class="token punctuation">:</span> read_file<span class="token punctuation">,</span>
+    <span class="token string">"ls_dir"</span><span class="token punctuation">:</span> ls_dir<span class="token punctuation">,</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Prior to out main loop use the <code>get_tools_param</code> function to
+initialize the <code>tools</code> value that is passed to the <code>completion</code> call:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">tools <span class="token operator">=</span> get_tools_param<span class="token punctuation">(</span>TOOLS_MAP<span class="token punctuation">)</span></code></pre>
+<p>Finally, adjust the tool calling loop to use a more generic mechanism
+for calling the tools defined in the <code>TOOLS_MAP</code>:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">    <span class="token keyword">for</span> tc <span class="token keyword">in</span> tool_calls<span class="token punctuation">:</span>
+        fn <span class="token operator">=</span> tc<span class="token punctuation">[</span><span class="token string">'function'</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> fn<span class="token punctuation">.</span>name <span class="token keyword">in</span> TOOLS_MAP<span class="token punctuation">:</span>
+            fn_args <span class="token operator">=</span> json<span class="token punctuation">.</span>loads<span class="token punctuation">(</span>fn<span class="token punctuation">.</span>arguments<span class="token punctuation">)</span>
+            <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"calling </span><span class="token interpolation"><span class="token punctuation">{</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">}</span></span><span class="token string">(</span><span class="token interpolation"><span class="token punctuation">{</span>fn_args<span class="token punctuation">}</span></span><span class="token string">)"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            fn_result <span class="token operator">=</span> TOOLS_MAP<span class="token punctuation">[</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token operator">**</span>fn_args<span class="token punctuation">)</span>
+            <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span></code></pre>
+<p>Let's try it out:</p>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
+user<span class="token operator">></span> There is a python <span class="token function">file</span> <span class="token keyword">in</span> this dir. Use your tools to <span class="token function">find</span> it, <span class="token builtin class-name">read</span> it, and summarize it <span class="token keyword">in</span> one sentence.
+calling ls_dir<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'path'</span><span class="token builtin class-name">:</span> <span class="token string">'.'</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+result: <span class="token punctuation">{</span><span class="token string">"stdout"</span><span class="token builtin class-name">:</span> <span class="token string">"total 8<span class="token entity" title="\n">\n</span>drwxrwxr-x@  6 joelmartin  staff   192 May  1 0...
+calling read_file({'path': 'agent.py'})
+result: {"</span>content<span class="token string">": "</span>#<span class="token operator">!</span>/usr/bin/env python3<span class="token punctuation">\</span>n<span class="token punctuation">\</span>nfrom litellm <span class="token function">import</span> completio<span class="token punctuation">..</span>.
+assistant<span class="token operator">></span> This Python script defines an agent that uses the litellm library to interact with a language model, allowing the user to provide input and receive responses, potentially utilizing tools like reading files and listing directory contents based on the model's tool calls.</code></pre>
+<h1 id="step-5-file-editing-tools">Step 5: File editing tools</h1>
+<picture><source type="image/avif" srcset="/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.avif 661w"><source type="image/webp" srcset="/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.webp 661w"><img loading="lazy" decoding="async" src="/blog/litellm-agent-in-six-steps/kVS9jZklWR-661.png" alt="Diagram of Step 5 - file editing tools" width="661" height="581"></picture>
+<p>Our agent has the ability to list and read files, now let's make the
+final improvement that will actually turn this into a coding agent.</p>
+<p>Define the functions that will allow the agent to edit and
+create new files and add them to the <code>TOOLS_MAP</code>:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">edit_file</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> <span class="token keyword">match</span><span class="token punctuation">,</span> replace<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Edit the file at 'path' replacing the first occurence of
+    'match' string with 'replace' string. 'match' and 'replace' are
+    raw strings and should not have escaped newlines, backslashes, etc.
+    Returns an empty map on success"""</span>
+    orig <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    new <span class="token operator">=</span> orig<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token keyword">match</span><span class="token punctuation">,</span> replace<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> new <span class="token operator">==</span> orig<span class="token punctuation">:</span> <span class="token keyword">raise</span> Exception<span class="token punctuation">(</span><span class="token string">"match string not found"</span><span class="token punctuation">)</span>
+    <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> <span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>new<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">def</span> <span class="token function">create_file</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> content<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Create (or replace) file at 'path' with 'content'.
+    'content' is a raw string and does not need extra escaping.
+    Returns an empty map on success"""</span>
+    <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> <span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+TOOLS_MAP <span class="token operator">=</span> <span class="token punctuation">{</span>
+    <span class="token string">"read_file"</span><span class="token punctuation">:</span> read_file<span class="token punctuation">,</span>
+    <span class="token string">"ls_dir"</span><span class="token punctuation">:</span> ls_dir<span class="token punctuation">,</span>
+    <span class="token string">"edit_file"</span><span class="token punctuation">:</span> edit_file<span class="token punctuation">,</span>
+    <span class="token string">"create_file"</span><span class="token punctuation">:</span> create_file<span class="token punctuation">,</span>
+<span class="token punctuation">}</span></code></pre>
+<p>Those new tools enable a large amount of agentic coding ability. Let's
+improve the error handling and format of the tool calling messages:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">            <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"tool call> </span><span class="token interpolation"><span class="token punctuation">{</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">}</span></span><span class="token string">(</span><span class="token interpolation"><span class="token punctuation">{</span>fn_args<span class="token punctuation">}</span></span><span class="token string">)"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            <span class="token keyword">try</span><span class="token punctuation">:</span>
+                fn_result <span class="token operator">=</span> TOOLS_MAP<span class="token punctuation">[</span>fn<span class="token punctuation">.</span>name<span class="token punctuation">]</span><span class="token punctuation">(</span><span class="token operator">**</span>fn_args<span class="token punctuation">)</span>
+            <span class="token keyword">except</span> Exception <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+                fn_result <span class="token operator">=</span> <span class="token punctuation">{</span><span class="token string">"error"</span><span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">(</span>e<span class="token punctuation">)</span><span class="token punctuation">}</span>
+            res_str <span class="token operator">=</span> json<span class="token punctuation">.</span>dumps<span class="token punctuation">(</span>fn_result<span class="token punctuation">)</span>"
+            <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"tool result> </span><span class="token interpolation"><span class="token punctuation">{</span>res_str<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+            message<span class="token punctuation">.</span>append<span class="token punctuation">(</span><span class="token punctuation">{</span>
+                <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span></code></pre>
+<p>Now let's use the new editing ability to make changes to a file:</p>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
+user<span class="token operator">></span> Change the greeting <span class="token keyword">in</span> the text <span class="token function">file</span> to use my first name.
+assistant<span class="token operator">></span> Could you please clarify <span class="token function">which</span> text <span class="token function">file</span> you<span class="token string">'d like to update? Also, let me know your first name so I can make the correct change.
+user> My name is Joel. You figure out the file.
+tool call> edit_file({'</span>match<span class="token string">': '</span>Hello<span class="token string">', '</span>replace<span class="token string">': '</span>Hello Joel<span class="token string">', '</span>path<span class="token string">': '</span>gr<span class="token punctuation">..</span>.
+tool result<span class="token operator">></span> <span class="token punctuation">{</span><span class="token string">"error"</span><span class="token builtin class-name">:</span> <span class="token string">"[Errno 2] No such file or directory: 'greeting.txt'"</span><span class="token punctuation">}</span>
+tool call<span class="token operator">></span> ls_dir<span class="token punctuation">(</span><span class="token punctuation">{</span><span class="token string">'path'</span><span class="token builtin class-name">:</span> <span class="token string">'.'</span><span class="token punctuation">}</span><span class="token punctuation">)</span>
+tool result<span class="token operator">></span> <span class="token punctuation">{</span><span class="token string">"stdout"</span><span class="token builtin class-name">:</span> <span class="token string">"total 24<span class="token entity" title="\n">\n</span>drwxrwxr-x@  7 joelmartin  staff   224 Ma...
+tool call> read_file({'path': 'greet.txt'})
+tool result> {"</span>content<span class="token string">": "</span>hello NAME<span class="token operator">!</span><span class="token punctuation">\</span>n<span class="token string">"}
+tool call> edit_file({'match': 'NAME', 'replace': 'Joel', 'path': 'greet.txt'})
+tool result> {}
+assistant> I found the file "</span>greet.txt<span class="token string">". I've changed the greeting so that it now says "</span>hello Joel<span class="token operator">!</span>".</code></pre>
+<h1 id="step-6-final-touch-ups">Step 6: Final touch ups</h1>
+<p>Those four simple tools/abilities (list files, read a file, create a file, and
+edit a file) are enough to give our agent the ability to do coding
+tasks. So let's use our agent itself to make some final improvements
+to its own code.</p>
+<pre class="language-shell" tabindex="0"><code class="language-shell">$ ./agent.py
+user<span class="token operator">></span> Copy agent.py to agent2.py where we will <span class="token function">make</span> changes. Start by adding a friendly startup message <span class="token punctuation">(</span>with model<span class="token punctuation">)</span>.
+TODO/TBD
+user<span class="token operator">></span> For the three prints and the input call, colorize the part before the <span class="token string">'>'</span> using ASCII escape codes <span class="token punctuation">(</span>red, green, blue, purple<span class="token punctuation">)</span>.
+user<span class="token operator">></span> Before calling a tool, confirm with the user. If confirmed <span class="token builtin class-name">continue</span> as before, otherwise <span class="token function">add</span> a response map to the messages with a <span class="token string">"User Refused"</span> error.
+TODO/TBD
+<span class="token punctuation">..</span>.ELIDED<span class="token punctuation">..</span>.
+
+$ ./agent2.py</code></pre>
+<p>The full code for each of the above steps can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.</p>
+<h1 id="step-7-you-take-it-from-here">Step 7: You take it from here!</h1>
+<p>You now have a basic working coding agent. The next steps are up to
+you. Here are some ideas:</p>
+<ul>
+<li>Add streaming output so that you can see the progress of the model
+as it is generating longer responses.</li>
+<li>Make the tool confirmation more sophisticated and allow specific
+actions or whole tools to be run without confirmation the next time.</li>
+<li>Add proper python argument parsing. Allow the model name, system
+prompt, tool confirmation mode, etc to be specified as command
+line. Allow the initial query to optionally be specified on the
+command line (like step 1).</li>
+<li>Add the ability to continue a previous session (save/pickle the
+context and reload it if requested).</li>
+<li>Give it the ability to run tests.</li>
+<li>Get it working reliably with other models. For example,
+<code>github_copilot/gemini-2.0-flash-001</code> is the cheapest model but it
+has trouble using the tools the way they are currently defined.</li>
+</ul>
+
+
+			</heading-anchors>
+		</main>
+
+		<footer>
+			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
+		</footer>
+
+		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-05-02T16:48:39.815Z -->
+		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
+	</body>
+</html>
