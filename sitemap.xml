@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 	
 	<url>
+		<loc>https://kanaka.github.io/blog/most-important-parts-of-html5/blog-n01se-net-p-375/</loc>
+		<lastmod>2011-08-06</lastmod>
+	</url>
+	
+	<url>
 		<loc>https://kanaka.github.io/blog/litellm-agent-in-six-steps/</loc>
 		<lastmod>2025-05-01</lastmod>
 	</url>

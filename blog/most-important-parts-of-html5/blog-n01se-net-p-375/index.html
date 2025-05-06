@@ -1,0 +1,750 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>The Most Important Parts of HTML5</title>
+		<meta name="description" content="An old but popular post from Aug 2011 that is resurrected here discussing the most important parts of the modern web (HTML5).">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Joel Martin&#39;s Weblog">
+		
+		
+		
+		
+		<style>/* This is an arbitrary CSS string added to the bundle */
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+@view-transition {
+	navigation: auto;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+/* Fluid images via https://www.zachleat.com/web/fluid-images/ */
+img{
+  max-width: 100%;
+}
+img[width][height] {
+  height: auto;
+}
+img[src$=".svg"] {
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+video,
+iframe {
+	width: 100%;
+	height: auto;
+}
+iframe {
+	aspect-ratio: 16/9;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main,
+footer {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	display: flex;
+	justify-content: space-between;
+	gap: .5em 1em;
+	list-style: "";
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+.links-nextprev > * {
+	flex-grow: 1;
+}
+.links-nextprev-next {
+	text-align: right;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	overflow-x: auto;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	flex-grow: 1;
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	gap: .5em 1em;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	counter-reset: start-from var(--postlist-index);
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+/* smaller code block font size. !important needed to override theme
+ * which inserts it's CSS late */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 0.80rem !important;          /* e.g. 14 px if body text is 16 px  */
+  line-height: 1.4 !important;
+}
+
+/* do not capitalize tags/labels */
+.post-tag {
+	text-transform: unset;
+}
+/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}</style>
+		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Joel Martin&#39;s Weblog</a>
+			<nav>
+				<h2 class="visually-hidden" id="top-level-navigation-menu">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About</a></li>
+					<li class="nav-item"><a href="/feed/feed.xml">Feed</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			<heading-anchors>
+				
+
+
+<h1 id="the-most-important-parts-of-html5">The Most Important Parts of HTML5</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2011-08-06">06 August 2011</time></li>
+	<li><a href="/tags/web/" class="post-tag">web</a>, </li>
+	<li><a href="/tags/html/" class="post-tag">HTML</a>, </li>
+	<li><a href="/tags/html5/" class="post-tag">HTML5</a>, </li>
+	<li><a href="/tags/js/" class="post-tag">JS</a>, </li>
+	<li><a href="/tags/javascript/" class="post-tag">JavaScript</a>, </li>
+	<li><a href="/tags/webrtc/" class="post-tag">WebRTC</a>, </li>
+	<li><a href="/tags/standard/" class="post-tag">standard</a>, </li>
+	<li><a href="/tags/standards/" class="post-tag">standards</a>, </li>
+	<li><a href="/tags/w3c/" class="post-tag">W3C</a>, </li>
+	<li><a href="/tags/ietf/" class="post-tag">IETF</a>, </li>
+	<li><a href="/tags/browser/" class="post-tag">browser</a>, </li>
+	<li><a href="/tags/web-audio/" class="post-tag">web audio</a>, </li>
+	<li><a href="/tags/audio/" class="post-tag">audio</a>, </li>
+	<li><a href="/tags/video/" class="post-tag">video</a>, </li>
+	<li><a href="/tags/canvas/" class="post-tag">canvas</a>, </li>
+	<li><a href="/tags/api/" class="post-tag">API</a>, </li>
+	<li><a href="/tags/apis/" class="post-tag">APIs</a>, </li>
+	<li><a href="/tags/2d-canvas/" class="post-tag">2d canvas</a>, </li>
+	<li><a href="/tags/webgl/" class="post-tag">WebGL</a>, </li>
+	<li><a href="/tags/web-workers/" class="post-tag">web workers</a>, </li>
+	<li><a href="/tags/websockets/" class="post-tag">websockets</a>, </li>
+	<li><a href="/tags/whatwg/" class="post-tag">WHATWG</a>, </li>
+	<li><a href="/tags/css/" class="post-tag">CSS</a>, </li>
+	<li><a href="/tags/css3/" class="post-tag">CSS3</a>, </li>
+	<li><a href="/tags/woff/" class="post-tag">WOFF</a>, </li>
+	<li><a href="/tags/binary/" class="post-tag">binary</a>, </li>
+	<li><a href="/tags/types/" class="post-tag">types</a>, </li>
+	<li><a href="/tags/data-types/" class="post-tag">data types</a>, </li>
+	<li><a href="/tags/typed-arrays/" class="post-tag">typed arrays</a>, </li>
+	<li><a href="/tags/blob-type/" class="post-tag">blob type</a>, </li>
+	<li><a href="/tags/storage/" class="post-tag">storage</a>, </li>
+	<li><a href="/tags/file-apis/" class="post-tag">file apis</a>, </li>
+	<li><a href="/tags/svg/" class="post-tag">SVG</a></li>
+</ul>
+
+
+<article class="entry">
+<p>&nbsp;</p>
+<div class="content"><h2 style="text-align: center" id="or-why-video-and-audio-are-boring">or <em><strong>Why &lt;video&gt; and &lt;audio&gt; are Boring</strong></em></h2>
+<h2 style="text-align: center" id="or-the-new-web-platform">or <em><strong>The New Web Platform</strong></em></h2>
+<h2 style="text-align: center" id="or-an-introduction-to-html5">or <em><strong>An Introduction to HTML5</strong></em></h2>
+<p>&nbsp;</p>
+<b>[This page was originally published at <a href="http://blog.n01se.net/?p=375">http://blog.n01se.net/?p=375</a>. That site no longer exists. On 2025-05-06 I resurrected the content here for posterity. I have update many of the links if I was able to find a modern versions of the same (or similar) content. Otherwise I have linked to Internet Archive Wayback Machine versions of those pages. The original version of this page (along with the terrible background) in the Wayback Machine is <a href="https://web.archive.org/web/20201112022805/http://blog.n01se.net/blog-n01se-net-p-375.html">here</a>.]</b>
+<p>&nbsp;</p>
+<h2 id="a-little-perspective">A Little Perspective</h2>
+<h4 id="the-birth-of-the-web">The Birth of the Web</h4>
+<p>20 years ago today (Aug 6th, 1991), Tim Berners-Lee <a title="Email from Berners-Lee on Aug 6th, 1981" href="http://www.w3.org/People/Berners-Lee/1991/08/art-6484.txt">released</a> the World Wide Web on the world while working at <a title="European Organization for Nuclear Research" href="http://www.cern.ch/">CERN</a>.  Actually what he released was a program called "WorldWideWeb" which was eventually renamed "Nexus" to clarify the distinction between the concept of the World Wide Web and the browser itself.<span id="more-375"></span></p>
+<p>The initial browser could render documents written in HyperText Markup Language (HTML). The first HTML supported some limited formatting and hyperlinks (we just call them links now) to other documents.  Here is a screenshot from 2 years later when color and inline images were added:</p>
+<div class="wp-caption aligncenter" style="width: 410px"><picture><source type="image/avif" srcset="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/DeGS_nQX-Y-400.avif 400w"><source type="image/webp" srcset="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/DeGS_nQX-Y-400.webp 400w"><img loading="lazy" decoding="async" src="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/DeGS_nQX-Y-400.gif" class="  " alt="WorldWideWeb browser running on a NeXT System" width="400" height="297"></picture><p class="wp-caption-text">WorldWideWeb Browser Running on a NeXT System</p></div>
+<h4 id="the-rise-of-the-web">﻿﻿The Rise of the Web</h4>
+<p>In the next 10 years "the Web" exploded in terms of innovation, standardization (<a href="#footnote1">Footnote 1</a>), number of users, browsers (installs and variations), web servers (installs and variations), and economic impact. With the release of Mosaic (at <a title="The National Center for Supercomputing Applications at the University of Illinois" href="http://www.ncsa.illinois.edu/">NCSA</a>) in 1993, with its seamless integration of graphics and text, the World Wide Web quickly grew to become the dominant use of the Internet and the driving force behind Internet adoption. In fact, for most computer users "the Web" and "the Internet" have become synonymous.</p>
+<h4 id="the-fall-of-the-web">The Fall of the Web</h4>
+<p>At the turn of the century, Web innovation slowed due to the emergence of Microsoft's Internet Explorer as a near monopoly in the web browser market.  Once Microsoft achieved a controlling share of the web browser market they lost interest in driving or cooperating on new Web standards and technologies because this might threaten their profitable Windows platform.</p>
+<h4 id="the-rise-of-the-web-again">The Rise of the Web (Again)</h4>
+<p>In the last three years there has been a new explosion of Web innovation.  The Web has been released from its cage by three main trends: the rise of Mozilla Firefox (a spiritual descendant of the Mosaic browser), the rise of Google Chrome, and the rise of mobile devices.</p>
+<div class="wp-caption aligncenter" style="width: 410px"><picture><source type="image/avif" srcset="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/2rQlsHBKkA-400.avif 400w"><source type="image/webp" srcset="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/2rQlsHBKkA-400.webp 400w"><img loading="lazy" decoding="async" src="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/2rQlsHBKkA-400.png" class=" " alt="Web Browser Market Share 2008-2011 (Wikimedia)" width="400" height="400"></picture><p class="wp-caption-text">Web Browser Market Share (Wikimedia)</p></div>
+<p>&nbsp;</p>
+<p>A core part of human nature is to <a title="Genesis 2:19-20" href="http://www.biblegateway.com/passage/?search=Genesis+2%3A19-20&amp;version=NIV">give names to everything</a> including to abstract concepts. The new energy and innovation surrounding the Web platform is no exception; it needs a name. Which brings us to "HTML5" ...</p>
+<p>&nbsp;</p>
+<h3 id="html5">"HTML5"</h3>
+<p>Technically, HTML5 is a <a title="W3C HTML5 Specification" href="http://www.w3.org/TR/html5/">specification</a> from the World Wide Web Consortium (W3C)  (<a href="#footnote2">Footnote 2</a>). Many pedants will claim this is the only correct usage. For the rest of us, HTML5 is a useful term to describe the rapid changes that are currently happening to the Web platform. This is what I will mean when I use the term "HTML5". I will refer to the formal specification as "W3C HTML5".</p>
+<h3 id="w3c-html5">W3C HTML5</h3>
+<p>Although the W3C HTML5 specification is not going to be officially complete until 2014, <a title="W3C HTML5 End of Last Call" href="http://blog.whatwg.org/weekly-end-of-last-call">the specification finished last call review</a> earlier this week (Aug 3rd) so there are unlikely to be any radical changes in the next three years before finalization.</p>
+<h4 id="w3c-html5-is-boring">W3C HTML5 is Boring</h4>
+<p>The W3C HTML5 is very important at one level, but it is also pretty boring. It is basically a formal description of the state-of-the art in the Web platform from 3 years ago. The actual content of the specification is pretty mundane (even apart from the dry and technical nature of specification documents). The most interesting API in the W3C HTML5 is the Canvas 2D Context and that is defined in a <a title="W3C Canvas 2D Context Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/2dcontext/">separate document</a>.</p>
+<h4 id="w3c-html5-is-important">W3C HTML5 is Important</h4>
+<p>However, the W3C HTML5 is important because it makes official all the good ideas that have been learned over the years and it attempts to remove most of the things that are now considered mistakes. It also brings a great deal of consistency and completeness to the various DOM APIs and HTML elements. And probably most importantly, it has brought the various browser makers into agreement. This means web developers that develop against what is defined in the W3C HTML5 specification should have one application that works well on all recent browsers versions without the need for browser specific kludges.</p>
+<h3 id="w3c-html5-vs-html5">W3C HTML5 vs HTML5</h3>
+<p>If I were to sum up the differences between the W3C HTML5 specification and the larger concept of HTML5 it would be this:</p>
+<ul>
+<li>The W3C HTML5 promotes many of the existing second class elements of the Web such as video, audio, animations, smart forms, etc into first class elements.</li>
+<li>HTML5 (the common usage) takes those new elements and adds power and functionality to them that was not previously possible. HTML5 also creates a whole new set of first class elements out of technologies that were not part of the Web in the first place such as hardware device access, binary data, file system access, multiprocessing, etc.</li>
+</ul>
+<p>Or another way of summing up the relationship between the two:</p>
+<p style="padding-left: 30px">The W3C HTML5 specification serves as the foundation and framework upon which all the interesting HTML5 developments are happening.</p>
+<p>&nbsp;</p>
+<h2 id="the-most-important-parts-of-html5-2">The Most Important Parts of HTML5</h2>
+<p>Now we come to my purpose for this article: to list and describe the HTML5 APIs, standards, and technologies that are most important (and most interesting). I have tried to imagine the Web as it will exist five years from now and from that vantage point determine what parts of HTML5 were most crucial in bringing us to that imagined future.</p>
+<p>The following list is ordered from most to least important. Obviously this is just my opinion. I do web application development (<a title="noVNC - HTML5 VNC Client" href="https://github.com/kanaka/noVNC">noVNC</a>, <a title="websockify - WebSocket to TCP socket proxy/bridge" href="https://github.com/kanaka/websockify">websockify</a>) and participate in HTML5 working groups and discussions, but the future is always more interesting (and less) than any experts can predict.</p>
+<p>So without further ado...</p>
+<p>&nbsp;</p>
+<h3 id="1-faster-javascript-engines">1. Faster Javascript Engines</h3>
+<p><strong> </strong> The Web as a application platform is built on this more than anything else. The new Javascript engines are the warp drive for the Web. Without the warp drive, Star Trek is a story that takes place on earth (or at best in one solar system). Without the massive increase in Javascript performance we would still be talking about web pages and not web applications.</p>
+<h3 id="2-websockets">2. WebSockets</h3>
+<p><strong> </strong>This moves the browser solidly into the space of highly interactive networked applications. After fast Javascript engines, low-latency networking has the largest potential for allowing the Web to conquer new application domains.</p>
+<h3 id="3-binary-data-types-typed-arrays-and-blobs">3. Binary Data Types (Typed Arrays and Blobs)</h3>
+<p>Javascript started its life as a way to do validation of textual form data.  However, many of the first class elements introduced in HTML5 contain, receive and/or output binary data and so native binary data types in Javascript has become a necessity. Developers have used various hacks to encode binary data in old Javascript data types for many years. But using these hacks is a significant barrier and the full power of HTML5 will not be unleashed without native binary data support.</p>
+<h3 id="4-web-audio-api">4. Web Audio API</h3>
+<p><strong> </strong> This is not the &lt;audio&gt; tag but rather the APIs/proposals for allowing low-latency, direct audio manipulation from Javascript.  The &lt;audio&gt; tag (which is part of W3C HTML5) allows an audio file to be embedded directly in a web page and it provides a playback and synchronization API.</p>
+<p>The Web Audio API proposals allows for direct creation and manipulation of audio waveforms and also address issues of high-latency playback that exist in current &lt;audio&gt; tag implementations. These proposals are still very young and the final solutions may merge with the &lt;audio&gt; tag, but the issues addressed by the Web Audio API proposals will be in future browsers in one form or another.</p>
+<h3 id="5-canvas-2d-context">5. Canvas 2D Context</h3>
+<p><strong> </strong>Direct pixel manipulation. Everybody agrees it is important so there is not much I will add. I put it below the Web Audio API because much of what can be done with Canvas 2D Content can be done with other methods (SVG, WebGL, CSS3).</p>
+<h3 id="6-css3-and-woff">6. CSS3 and WOFF</h3>
+<p><strong> </strong>Cascading Style Sheets 3 and the Web Open Font Format together bring the full power of design, typography, layout, and visual transformation to the web. Also, with CSS3 (in particular the Flexible Box Model), web applications will finally have a simple and powerful way of doing user interface layout without the element positioning mess that is necessary with CSS2.</p>
+<h3 id="7-local-storage-offline-applications-and-the-file-apis">7. Local Storage, Offline Applications and the File APIs</h3>
+<p><strong> </strong> There are many application domains that are just not feasible without fast, local and persistent storage (at least not until everyone has cheap Gigabit Internet connections). Some form of local storage is also necessary for web applications to be usable when there is no Internet connection available. There are a number of APIs/standards being developed in this area but they are all addressing different aspects of the same fundamental limitation of pre-HTML5 browsers.</p>
+<h3 id="8-web-workers">8. Web Workers</h3>
+<p><strong> </strong>Moore's Law is dead, long live Moore's Law! The year-after-year exponential increase in CPU frequency due to Moore's Law ended several years ago. But Moore's Law  was actually a statement about transistor cost/density and this has not changed, it simply has a new face: processor cores per square inch of chip. In a few years, even your mobile phone will have more processor cores than you have fingers.</p>
+<p>New software models are required to take full advantage of the new multi-core reality of Moore's Law. Fortunately, even though Javascript has always been a single threaded language it was also designed from the beginning to an event driven language. This means that while multiple lines of Javascript in the same web application cannot be running simultaneously, the browser can be doing multiple things at once on behalf of that Javascript code that is running.</p>
+<p>Being event driven only goes so far. The Web Workers specification was created to allow a single web application to have multiple threads of Javascript running simultaneously. To avoid the massive complexity that usually comes with multi-threaded programming (locks, special data structures, etc), Web Workers are independent Javascript contexts and they can only interact with each other and with the main Javascript thread using event driven message passing.</p>
+<h3 id="9-svg-1-1-2-0">9. SVG 1.1/2.0</h3>
+<p><strong> </strong> The SVG (Scalable Vector Graphics) format has been around for a long time and some browsers have been able to embed SVG images into web pages. SVG is finally starting to be adopted by all browser makers in a form that adds powerful APIs and that allows full access and manipulation to the contained elements (i.e. a truly first class element).</p>
+<p>SVG is actually a difficult one to place in the list. Many (perhaps even most) of the uses of the Canvas 2D Context are actually more appropriate to SVG and in many ways SVG is far more powerful. However, SVG has had an uneven history and I fear that it has accumulated some unjustified mental baggage that will prevent it from being as fundamental and important as it otherwise would be. I will be happy to be proved wrong if it turns out to be more important than I have rated it.</p>
+<h3 id="10-webgl">10. WebGL</h3>
+<p><strong> </strong> This is the Canvas 3D Context and it is basically a hardware accelerated OpenGL API for the Web. Like SVG, this is potentially a very important piece of HTML5. But I say potentially because Microsoft has been somewhat dismissive of WebGL (possibly since it is defined in terms of OpenGL rather than their own DirectX API) and so there is uncertainty about whether this will ever make it into Internet Explorer. If there were less uncertainty I would place this higher in the list because it brings the Web to the doorstep of so many new application domains (including 3D games).</p>
+<h3 id="11-all-the-rest">11. All the Rest</h3>
+<p><strong> </strong>The ultimate vision of many who are pushing forward the Web platform is to make the Web platform as powerful, capable and comprehensive as native applications.  The first 10 items each open up the Web platform to large new application domains that have historically only been possible with native applications. But they leave many gaps that must be filled before we reach a future where the question asked by developers is no longer "<em><strong>Can I build this as a web application?</strong></em>" but rather "<em><strong>Do I want to build this as a web application?</strong></em>"</p>
+<p>There are numerous proposals that are being worked on to address the gaps in web application functionality. Several of them would probably be higher on the list if they were further along or had less uncertainty about whether they will be universally adopted by all browser makers. Here are just a few of the proposals/APIs that are attempting to fill the gaps:</p>
+<ul>
+<li><strong>WebRTC/Stream API</strong>: Peer-to-peer video conferencing.</li>
+<li>﻿<strong>Geolocation</strong>: Where in the World am I?</li>
+<li><strong>Orientation</strong>: Which way is up?</li>
+<li><strong>Crypto</strong>: Encrypt/decrypt efficiently in Javascript</li>
+<li><strong>WebCL</strong>: The Web version of OpenCL. Who wouldn't want to use the GPU directly for computation from Javascript?</li>
+<li><strong>WebNotifications</strong>: Tell me what's happening, but gently.</li>
+<li><strong>Web Intents</strong>: Associate data types with default actions and pass data back and forth between web applications. Your favorite web application for editing images will inevitably be different then the default one for that web based slideshow application. Shout with me: "OLE!"</li>
+<li><strong>Page Visibility</strong>: Imagine how much energy the world would be save if those animations and movies stopped rendering when you aren't looking at them.</li>
+<li><strong>requestAnimationFrame</strong>: with setTimeout you get 100 FPS or you get 2 FPS (often within the same second). Now you can get a consistent 30 FPS. And there was much rejoicing.</li>
+<li><strong>Microdata</strong>: unambiguous parsing of embedded machine-readable data.</li>
+<li><strong>Etc</strong></li>
+<li><strong>Etc</strong> (<a href="#footnote3">Footnote 3</a>)</li>
+</ul>
+<p>&nbsp;</p>
+<div class="wp-caption aligncenter" style="width: 210px"><picture><source type="image/avif" srcset="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/9CrLwhDZRl-200.avif 200w"><source type="image/webp" srcset="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/9CrLwhDZRl-200.webp 200w"><img loading="lazy" decoding="async" src="/blog/most-important-parts-of-html5/blog-n01se-net-p-375/9CrLwhDZRl-200.png" alt="Mac vs PC vs Browser (xkcd.com)" width="200" height="371"></picture><p class="wp-caption-text">Mac vs PC vs Browser (from xkcd.com)</p></div>
+<h3 id="what-about-video-and-audio">What about &lt;video&gt; and &lt;audio&gt;?</h3>
+<p>The &lt;video&gt; and &lt;audio&gt; tags are probably the HTML5 features that have caused the most excitement (and angst) on the web regarding HTML5. In fact, some of you may have scanned ahead looking for them in the list and were surprised they were not #1 and #2. These two elements are part of W3C HTML5 and while they do make first class elements out of what has traditionally been second class (e.g. done with Flash), they are still really just a better way of doing what has already been done. The &lt;video&gt; and &lt;audio&gt; tags don't significantly expand the scope of what web applications are capable of so that is one reason why they are not on the list. Another problem with these tags is that the list of supported media formats is inconsistent across browsers. Until this is resolved, their adoption will be hampered. (<a href="#footnote4">Footnote 4</a>)</p>
+<hr>
+<p>&nbsp;</p>
+<h2 id="footnotes">Footnotes</h2>
+<p>These were originally inline in the article and they seemed to interrupt the flow so I moved them here. And even without these notes the article is still too long.</p>
+<h4 id="footnote-1"><a name="footnote1">Footnote 1</a></h4>
+<p>Here are some notable standards that developed around the Web platform in the first few years after the first web browser was released by Tim Berners-Lee:</p>
+<ul>
+<li>1995 - <a title="IETF HTML 2.0 Specification" href="http://tools.ietf.org/html/rfc1866">HTML 2.0</a> is published as the first official HTML standard.</li>
+<li>1995 - HTML make the first baby step toward becoming dynamic and interactive when JavaScript is created by Brendan Eich and added to Netscape Navigator 2.</li>
+<li>1996 - The CSS1 (Cascading Style Sheets) specification is completed and parts of it appear in Internet Explorer 3. Part of the reason for CSS is to separate web page appearance from content and functionality. This follows as well established principle in computer science of separating concerns.</li>
+<li>1998 - The DOM Level 1 (Document Object Model) specification, the API of HTML elements on a page, is published by the W3C.</li>
+</ul>
+<h4 id="footnote-2"><a name="footnote2">Footnote 2</a></h4>
+<p>I should note another important group (with a long and forgettable name) that is involved in HTML standards is the <a title="WHATWG" href="http://www.whatwg.org/">Web Hypertext Application Technology Working Group (WHATWG)</a>. Many (perhaps most) of the people at WHATWG also participate in work at the W3C. The WHATWG can be thought as a more dynamic and less restricted version of the W3C.</p>
+<p>The WHATWG maintains two overarching standards documents. The first is <a title="WHATWG HTML Specification" href="http://www.whatwg.org/specs/web-apps/current-work/multipage/">HTML</a>.  Many of the ideas that are in the W3C HTML5 were first documented here. This document can be thought of HTML5+. The second standard document is called <a title="WHATWG Web Apps 1.0 Specification" href="https://web.archive.org/web/20111105131330/http://www.whatwg.org/specs/web-apps/current-work/multipage">Web Apps 1.0</a>.  This contains the content of the HTML document and adds many of the APIs that are considered important for the Web to become a full fledged application platform.</p>
+<p>The WHATWG Web Apps 1.0 document is much closer to what people generally mean when they use the term "HTML5", however, even that does not encapsulate the whole meaning. There are many other APIs and proposals that are part of the new energy of the Web that are or will make their way into most browsers (either via the standards process or not).</p>
+<h4 id="footnote-3"><a name="footnote3">Footnote 3</a></h4>
+<p>Etc. I am not aware of a web proposal/API yet with those three letters. The question is will this article will make it more or less likely that there will be one soon?</p>
+<h4 id="footnote-4"><a name="footnote4">Footnote 4</a></h4>
+<p>By combining fast Javascript, WebSockets, Canvas, Web Audio, and binary data types you can have video and audio without the &lt;video&gt;/&lt;audio&gt; tags and without any plugins. The frame rate and resolution might be lower than desired but it is possible.</p>
+<hr>
+<p>&nbsp;</p>
+<h2 id="resources">Resources</h2>
+<p>&nbsp;</p>
+<ul>
+<li><a title="Dive Into HTML5" href="https://web.archive.org/web/20201109001654/http://diveintohtml5.info/">Dive Into HTML5</a></li>
+<li><a title="HTML5Rocks" href="https://web.archive.org/web/20110902005801/http://www.html5rocks.com/en/">HTML5Rocks</a></li>
+<li>Excellent <a title="HTML5Rocks Presentation" href="https://web.archive.org/web/20100728045138/http://slides.html5rocks.com/#slide1">Presentation on HTML5</a> from HTML5Rocks</li>
+<li><a title="Can I use..." href="http://caniuse.com/">When can I use... </a> Compatibility tables for support of HTML5, CSS3, SVG and more in desktop and mobile browsers.</li>
+<li><a title="HTML5 Readiness" href="http://html5readiness.com/">HTML5 Readiness</a> - Flower chart of HTML5 &amp; CSS3 features in major browser versions</li>
+<li><a title="The HTML5 Test" href="http://beta.html5test.com/">The HTML5 Test</a> - How well does your browser support HTML5?</li>
+<li><a title="HTML5 Browser API list" href="https://html-now.github.io/">The Web Platform: Browser technologies</a> ()</li>
+<li><a title="HTML5 Twitter Page" href="https://x.com/html5">HTML5 Tweets</a></li>
+<li><a title="W3C blog" href="https://w3.org/blog">W3C Blog</a></li>
+<li><a title="WHATWG blog" href="https://blog.whatwg.org/">WHATWG Blog</a></li>
+<li><a title="Google Chrome blog" href="https://blog.google/products/chrome/">Google Chrome Blog</a></li>
+<li><a title="Mozilla Firefox blog" href="https://blog.mozilla.org/en/firefox/">Mozilla Firefox Blog</a></li>
+<li><a title="Opera Developer blog" href="https://blogs.opera.com/news/">Opera Developer Blog</a></li>
+<li><a title="Microsoft IE blog" href="https://web.archive.org/web/20111113231351/http://blogs.msdn.com/b/ie/">Microsoft Internet Explorer Blog</a></li>
+<li><a title="&quot;An Open Web&quot; online book" href="https://web.archive.org/web/20191018044201/https://en.flossmanuals.net/an-open-web/_info/">"An Open Web" book</a></li>
+<li><a title="20 Things Google comic" href="https://web.archive.org/web/20111112140028/http://www.20thingsilearned.com/en-US">"20 Things I Learned About Browsers and The Web"</a> Google comic</li>
+<li><a title="What is HTML5 (oreilly.com)" href="https://web.archive.org/web/20201112022805/http://radar.oreilly.com/2011/07/what-is-html5.html">"What is HTML5"</a></li>
+</ul>
+<h2 id="links">Links</h2>
+<p>&nbsp;</p>
+<ul>
+<li><a title="Early Web History (W3C)" href="http://www.w3.org/History.html)">Early History of the Web</a> (W3C)</li>
+<li><a title="Where the web was born (CERN)" href="http://public.web.cern.ch/public/en/about/web-en.html)">Where the web was born</a> (CERN)</li>
+<li><a title="W3C" href="http://www.w3.org/">W3C</a></li>
+<li><a title="W3C HTML5" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/html5/">W3C HTML5</a></li>
+<li><a title="WHATWG" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/">WHATWG</a></li>
+<li><a title="WHATWG HTML Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/multipage/">WHATWG HTML</a></li>
+<li><a title="WHATWG Web Apps 1.0 Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/complete/">WHATWG Web Apps 1.0</a></li>
+<li>1. EcmaScript/Javascript: <a title="ECMA-262 Standard" href="https://ecma-international.org/publications-and-standards/standards/ecma-262/">ECMA-262</a></li>
+<li>2. WebSockets
+<ul>
+<li>API: <a title="W3C WebSockets API" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/websockets/">W3C</a>, <a title="W3C WebSockets API" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/complete/network.html">WHATWG</a></li>
+<li>Protocol: <a title="IETF/HyBi WebSockets Protocol" href="https://web.archive.org/web/20201112022805/http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-10">IETF/HyBi</a></li>
+</ul>
+</li>
+<li>3. Binary Data Types
+<ul>
+<li><a title="Typed Array Specification" href="https://web.archive.org/web/20201112022805/http://www.khronos.org/registry/typedarray/specs/latest/">Typed Arrays</a></li>
+<li><a title="Blob Type Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/FileAPI/#blob">Blob Type</a></li>
+</ul>
+</li>
+<li>4. Web Audio: <a title="Google Web Audio API" href="https://web.archive.org/web/20201112022805/http://chromium.googlecode.com/svn/trunk/samples/audio/specification/specification.html">Google</a>, <a title="Mozilla Audio Data API" href="https://web.archive.org/web/20201112022805/https://wiki.mozilla.org/Audio_Data_API">Mozilla</a>, <a title="W3C Audio" href="https://web.archive.org/web/20201112022805/http://www.w3.org/2011/audio/">W3C</a></li>
+<li>5. Canvas 2D Context: <a title="W3C Canvas 2D Context Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/2dcontext/">W3C</a>, <a title="WHATWG Canvas Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html">WHATWG</a></li>
+<li>6. CSS and WOFF
+<ul>
+<li>CSS3: <a title="W3C CSS" href="https://web.archive.org/web/20201112022805/http://www.w3.org/Style/CSS/current-work">W3C</a></li>
+<li>WOFF: <a title="W3C WOFF Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/WOFF/">W3C</a></li>
+</ul>
+</li>
+<li>7. Local Storage, Offline Application and the File APIs
+<ul>
+<li>Web Storage: <a title="W3C Web Storage Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/webstorage/">W3C</a></li>
+<li>IndexedDB: <a title="W3C IndexedDB Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/IndexedDB/">W3C</a></li>
+<li>Offline Applications: <a title="W3C Offline Applications Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/spec/offline.html">W3C</a>, <a title="WHATWG Offline Applications Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">WHATWG</a></li>
+<li>File/Reader: <a title="W3C File (Reader) API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2006/webapi/FileAPI/">W3C</a></li>
+<li>File Writer: <a title="W3C File Writer API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2009/dap/file-system/file-writer.html">W3C</a></li>
+<li>File Dir/System: <a title="W3C File Directories/System API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2009/dap/file-system/file-dir-sys.html">W3C</a></li>
+</ul>
+</li>
+<li>8. Web Workers: <a title="W3C Web Workers Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/workers/">W3C</a>, <a title="WHATWG Web Workers Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/complete/workers.html">WHATWG</a></li>
+<li>9. SVG 1.1/2.0:
+<ul>
+<li><a title="W3C SVG 1.1 Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/SVG/">W3C 1.1</a></li>
+<li><a title="W3C SVG 2.0 Roadmap" href="https://web.archive.org/web/20201112022805/http://www.w3.org/Graphics/SVG/WG/wiki/Roadmap">SVG 2.0 W3C Roadmap</a></li>
+</ul>
+</li>
+<li>10. <a title="Khronos WebGL 1.0 Specification" href="https://web.archive.org/web/20201112022805/https://www.khronos.org/registry/webgl/specs/1.0/">WebGL</a></li>
+<li>11. All the Rest
+<ul>
+<li><a title="Google WebRTC Project" href="https://web.archive.org/web/20201112022805/https://sites.google.com/site/webrtc/">WebRTC</a>/Stream API</li>
+<li><a title="W3C Geolocation Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/geo/api/spec-source-v2">Geolocation</a></li>
+<li><a title="W3C Orientation Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/geo/api/spec-source-orientation">Orientation</a></li>
+<li><a title="Mozilla DomCrypto API Proposal" href="https://web.archive.org/web/20201112022805/https://wiki.mozilla.org/Privacy/Features/DOMCryptAPISpec/Latest">Crypto</a></li>
+<li><a title="Khronos WebCL" href="https://web.archive.org/web/20201112022805/http://www.khronos.org/webcl/">WebCL</a></li>
+<li><a title="W3C WebNotifications API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2006/webapi/WebNotifications/">WebNotifications</a></li>
+<li><a title="Google Web Intents Project" href="https://web.archive.org/web/20201112022805/http://webintents.org/">Web Intents</a></li>
+<li><a title="W3C Page Visibility API Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/2011/WD-page-visibility-20110602/">Page Visibility</a></li>
+<li><a title="Google requestAnimationFrame Proposal" href="https://web.archive.org/web/20201112022805/http://webstuff.nfshost.com/anim-timing/Overview.html">requestAnimationFrame</a></li>
+<li><a title="W3C Microdata specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/microdata/">Microdata</a></li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+</div>
+</article>
+
+<ul class="links-nextprev"><li class="links-nextprev-next">Next →<br><a href="/blog/litellm-agent-in-six-steps/">An LLM Coding Agent in 6 incremental steps and about 140 lines of python</a></li>
+</ul>
+
+			</heading-anchors>
+		</main>
+
+		<footer>
+			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
+		</footer>
+
+		<!-- This page `/blog/most-important-parts-of-html5/blog-n01se-net-p-375/` was built on 2025-05-06T20:44:31.468Z -->
+		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
+	</body>
+</html>
