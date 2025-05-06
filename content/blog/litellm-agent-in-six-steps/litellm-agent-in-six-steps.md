@@ -2,8 +2,7 @@
 title: An LLM Coding Agent in 6 incremental steps and about 140 lines of python
 description: I will show you how to create a working LLM coding agent in 6 incremental steps (and about 140 lines of code). We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (no LLM API sign-up needed) to get started.
 date: 2025-05-01
-tags: ["llm", "ai", "python", "software", "coding", "agent", "agents",
-"litellm", "API", "GitHub Copilot", "Github", "Copilot"]
+tags: ["LLM", "AI", "python", "software", "coding", "agent", "agents", "LiteLLM", "API", "GitHub Copilot", "Github", "Copilot"]
 ---
 
 **[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]**

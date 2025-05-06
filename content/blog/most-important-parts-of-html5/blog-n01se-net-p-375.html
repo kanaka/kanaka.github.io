@@ -1,0 +1,207 @@
+---
+title: The Most Important Parts of HTML5
+description: An old but popular post from Aug 2011 that is resurrected here discussing the most important parts of the modern web (HTML5).
+date: 2011-08-06
+tags: ["web", "HTML", "HTML5", "JS", "JavaScript", "WebRTC", "standard", "standards", "W3C", "IETF", "browser", "web audio", "audio", "video", "canvas", "API", "APIs", "2d canvas", "WebGL", "web workers", "websockets", "WHATWG", "CSS", "CSS3", "WOFF", "binary", "types", "data types", "typed arrays", "blob type", "storage", "file apis", "SVG"]
+---
+
+<article class="entry">
+<p>&nbsp;</p>
+<div class="content"><h2 style="text-align: center">or <em><strong>Why &lt;video&gt; and &lt;audio&gt; are Boring</strong></em></h2>
+<h2 style="text-align: center">or <em><strong>The New Web Platform</strong></em></h2>
+<h2 style="text-align: center">or <em><strong>An Introduction to HTML5</strong></em></h2>
+<p>&nbsp;</p>
+<b>[This page was originally published at <a href="http://blog.n01se.net/?p=375">http://blog.n01se.net/?p=375</a>. That site no longer exists. On 2025-05-06 I resurrected the content here for posterity. I have update many of the links if I was able to find a modern versions of the same (or similar) content. Otherwise I have linked to Internet Archive Wayback Machine versions of those pages. The original version of this page (along with the terrible background) in the Wayback Machine is <a href="https://web.archive.org/web/20201112022805/http://blog.n01se.net/blog-n01se-net-p-375.html">here</a>.]</b>
+<p>&nbsp;</p>
+<h2>A Little Perspective</h2>
+<h4>The Birth of the Web</h4>
+<p>20 years ago today (Aug 6th, 1991), Tim Berners-Lee <a title="Email from Berners-Lee on Aug 6th, 1981" href="http://www.w3.org/People/Berners-Lee/1991/08/art-6484.txt">released</a> the World Wide Web on the world while working at <a title="European Organization for Nuclear Research" href="http://www.cern.ch/">CERN</a>.  Actually what he released was a program called "WorldWideWeb" which was eventually renamed "Nexus" to clarify the distinction between the concept of the World Wide Web and the browser itself.<span id="more-375"></span></p>
+<p>The initial browser could render documents written in HyperText Markup Language (HTML). The first HTML supported some limited formatting and hyperlinks (we just call them links now) to other documents.  Here is a screenshot from 2 years later when color and inline images were added:</p>
+<div class="wp-caption aligncenter" style="width: 410px"><img class="  " src="http://www.w3.org/History/1994/WWW/Journals/CACM/screensnap2_24c.gif" alt="WorldWideWeb browser running on a NeXT System" width="400" height="297"/><p class="wp-caption-text">WorldWideWeb Browser Running on a NeXT System</p></div>
+<h4>﻿﻿The Rise of the Web</h4>
+<p>In the next 10 years "the Web" exploded in terms of innovation, standardization (<a href="#footnote1">Footnote 1</a>), number of users, browsers (installs and variations), web servers (installs and variations), and economic impact. With the release of Mosaic (at <a title="The National Center for Supercomputing Applications at the University of Illinois" href="http://www.ncsa.illinois.edu/">NCSA</a>) in 1993, with its seamless integration of graphics and text, the World Wide Web quickly grew to become the dominant use of the Internet and the driving force behind Internet adoption. In fact, for most computer users "the Web" and "the Internet" have become synonymous.</p>
+<h4>The Fall of the Web</h4>
+<p>At the turn of the century, Web innovation slowed due to the emergence of Microsoft's Internet Explorer as a near monopoly in the web browser market.  Once Microsoft achieved a controlling share of the web browser market they lost interest in driving or cooperating on new Web standards and technologies because this might threaten their profitable Windows platform.</p>
+<h4>The Rise of the Web (Again)</h4>
+<p>In the last three years there has been a new explosion of Web innovation.  The Web has been released from its cage by three main trends: the rise of Mozilla Firefox (a spiritual descendant of the Mosaic browser), the rise of Google Chrome, and the rise of mobile devices.</p>
+<div class="wp-caption aligncenter" style="width: 410px"><img class=" " src="https://web.archive.org/web/20201112022805im_/http://upload.wikimedia.org/wikipedia/commons/thumb/8/86/Usage_share_of_web_browsers_%28Source_StatCounter%29.svg/1000px-Usage_share_of_web_browsers_%28Source_StatCounter%29.svg.png" alt="Web Browser Market Share 2008-2011 (Wikimedia)" width="400" height="400"/><p class="wp-caption-text">Web Browser Market Share (Wikimedia)</p></div>
+<p>&nbsp;</p>
+<p>A core part of human nature is to <a title="Genesis 2:19-20" href="http://www.biblegateway.com/passage/?search=Genesis+2%3A19-20&amp;version=NIV">give names to everything</a> including to abstract concepts. The new energy and innovation surrounding the Web platform is no exception; it needs a name. Which brings us to "HTML5" ...</p>
+<p>&nbsp;</p>
+<h3>"HTML5"</h3>
+<p>Technically, HTML5 is a <a title="W3C HTML5 Specification" href="http://www.w3.org/TR/html5/">specification</a> from the World Wide Web Consortium (W3C)  (<a href="#footnote2">Footnote 2</a>). Many pedants will claim this is the only correct usage. For the rest of us, HTML5 is a useful term to describe the rapid changes that are currently happening to the Web platform. This is what I will mean when I use the term "HTML5". I will refer to the formal specification as "W3C HTML5".</p>
+<h3>W3C HTML5</h3>
+<p>Although the W3C HTML5 specification is not going to be officially complete until 2014, <a title="W3C HTML5 End of Last Call" href="http://blog.whatwg.org/weekly-end-of-last-call">the specification finished last call review</a> earlier this week (Aug 3rd) so there are unlikely to be any radical changes in the next three years before finalization.</p>
+<h4>W3C HTML5 is Boring</h4>
+<p>The W3C HTML5 is very important at one level, but it is also pretty boring. It is basically a formal description of the state-of-the art in the Web platform from 3 years ago. The actual content of the specification is pretty mundane (even apart from the dry and technical nature of specification documents). The most interesting API in the W3C HTML5 is the Canvas 2D Context and that is defined in a <a title="W3C Canvas 2D Context Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/2dcontext/">separate document</a>.</p>
+<h4>W3C HTML5 is Important</h4>
+<p>However, the W3C HTML5 is important because it makes official all the good ideas that have been learned over the years and it attempts to remove most of the things that are now considered mistakes. It also brings a great deal of consistency and completeness to the various DOM APIs and HTML elements. And probably most importantly, it has brought the various browser makers into agreement. This means web developers that develop against what is defined in the W3C HTML5 specification should have one application that works well on all recent browsers versions without the need for browser specific kludges.</p>
+<h3>W3C HTML5 vs HTML5</h3>
+<p>If I were to sum up the differences between the W3C HTML5 specification and the larger concept of HTML5 it would be this:</p>
+<ul>
+<li>The W3C HTML5 promotes many of the existing second class elements of the Web such as video, audio, animations, smart forms, etc into first class elements.</li>
+<li>HTML5 (the common usage) takes those new elements and adds power and functionality to them that was not previously possible. HTML5 also creates a whole new set of first class elements out of technologies that were not part of the Web in the first place such as hardware device access, binary data, file system access, multiprocessing, etc.</li>
+</ul>
+<p>Or another way of summing up the relationship between the two:</p>
+<p style="padding-left: 30px">The W3C HTML5 specification serves as the foundation and framework upon which all the interesting HTML5 developments are happening.</p>
+<p>&nbsp;</p>
+<h2>The Most Important Parts of HTML5</h2>
+<p>Now we come to my purpose for this article: to list and describe the HTML5 APIs, standards, and technologies that are most important (and most interesting). I have tried to imagine the Web as it will exist five years from now and from that vantage point determine what parts of HTML5 were most crucial in bringing us to that imagined future.</p>
+<p>The following list is ordered from most to least important. Obviously this is just my opinion. I do web application development (<a title="noVNC - HTML5 VNC Client" href="https://github.com/kanaka/noVNC">noVNC</a>, <a title="websockify - WebSocket to TCP socket proxy/bridge" href="https://github.com/kanaka/websockify">websockify</a>) and participate in HTML5 working groups and discussions, but the future is always more interesting (and less) than any experts can predict.</p>
+<p>So without further ado...</p>
+<p>&nbsp;</p>
+<h3>1. Faster Javascript Engines</h3>
+<p><strong> </strong> The Web as a application platform is built on this more than anything else. The new Javascript engines are the warp drive for the Web. Without the warp drive, Star Trek is a story that takes place on earth (or at best in one solar system). Without the massive increase in Javascript performance we would still be talking about web pages and not web applications.</p>
+<h3>2. WebSockets</h3>
+<p><strong> </strong>This moves the browser solidly into the space of highly interactive networked applications. After fast Javascript engines, low-latency networking has the largest potential for allowing the Web to conquer new application domains.</p>
+<h3>3. Binary Data Types (Typed Arrays and Blobs)</h3>
+<p>Javascript started its life as a way to do validation of textual form data.  However, many of the first class elements introduced in HTML5 contain, receive and/or output binary data and so native binary data types in Javascript has become a necessity. Developers have used various hacks to encode binary data in old Javascript data types for many years. But using these hacks is a significant barrier and the full power of HTML5 will not be unleashed without native binary data support.</p>
+<h3>4. Web Audio API</h3>
+<p><strong> </strong> This is not the &lt;audio&gt; tag but rather the APIs/proposals for allowing low-latency, direct audio manipulation from Javascript.  The &lt;audio&gt; tag (which is part of W3C HTML5) allows an audio file to be embedded directly in a web page and it provides a playback and synchronization API.</p>
+<p>The Web Audio API proposals allows for direct creation and manipulation of audio waveforms and also address issues of high-latency playback that exist in current &lt;audio&gt; tag implementations. These proposals are still very young and the final solutions may merge with the &lt;audio&gt; tag, but the issues addressed by the Web Audio API proposals will be in future browsers in one form or another.</p>
+<h3>5. Canvas 2D Context</h3>
+<p><strong> </strong>Direct pixel manipulation. Everybody agrees it is important so there is not much I will add. I put it below the Web Audio API because much of what can be done with Canvas 2D Content can be done with other methods (SVG, WebGL, CSS3).</p>
+<h3>6. CSS3 and WOFF</h3>
+<p><strong> </strong>Cascading Style Sheets 3 and the Web Open Font Format together bring the full power of design, typography, layout, and visual transformation to the web. Also, with CSS3 (in particular the Flexible Box Model), web applications will finally have a simple and powerful way of doing user interface layout without the element positioning mess that is necessary with CSS2.</p>
+<h3>7. Local Storage, Offline Applications and the File APIs</h3>
+<p><strong> </strong> There are many application domains that are just not feasible without fast, local and persistent storage (at least not until everyone has cheap Gigabit Internet connections). Some form of local storage is also necessary for web applications to be usable when there is no Internet connection available. There are a number of APIs/standards being developed in this area but they are all addressing different aspects of the same fundamental limitation of pre-HTML5 browsers.</p>
+<h3>8. Web Workers</h3>
+<p><strong> </strong>Moore's Law is dead, long live Moore's Law! The year-after-year exponential increase in CPU frequency due to Moore's Law ended several years ago. But Moore's Law  was actually a statement about transistor cost/density and this has not changed, it simply has a new face: processor cores per square inch of chip. In a few years, even your mobile phone will have more processor cores than you have fingers.</p>
+<p>New software models are required to take full advantage of the new multi-core reality of Moore's Law. Fortunately, even though Javascript has always been a single threaded language it was also designed from the beginning to an event driven language. This means that while multiple lines of Javascript in the same web application cannot be running simultaneously, the browser can be doing multiple things at once on behalf of that Javascript code that is running.</p>
+<p>Being event driven only goes so far. The Web Workers specification was created to allow a single web application to have multiple threads of Javascript running simultaneously. To avoid the massive complexity that usually comes with multi-threaded programming (locks, special data structures, etc), Web Workers are independent Javascript contexts and they can only interact with each other and with the main Javascript thread using event driven message passing.</p>
+<h3>9. SVG 1.1/2.0</h3>
+<p><strong> </strong> The SVG (Scalable Vector Graphics) format has been around for a long time and some browsers have been able to embed SVG images into web pages. SVG is finally starting to be adopted by all browser makers in a form that adds powerful APIs and that allows full access and manipulation to the contained elements (i.e. a truly first class element).</p>
+<p>SVG is actually a difficult one to place in the list. Many (perhaps even most) of the uses of the Canvas 2D Context are actually more appropriate to SVG and in many ways SVG is far more powerful. However, SVG has had an uneven history and I fear that it has accumulated some unjustified mental baggage that will prevent it from being as fundamental and important as it otherwise would be. I will be happy to be proved wrong if it turns out to be more important than I have rated it.</p>
+<h3>10. WebGL</h3>
+<p><strong> </strong> This is the Canvas 3D Context and it is basically a hardware accelerated OpenGL API for the Web. Like SVG, this is potentially a very important piece of HTML5. But I say potentially because Microsoft has been somewhat dismissive of WebGL (possibly since it is defined in terms of OpenGL rather than their own DirectX API) and so there is uncertainty about whether this will ever make it into Internet Explorer. If there were less uncertainty I would place this higher in the list because it brings the Web to the doorstep of so many new application domains (including 3D games).</p>
+<h3>11. All the Rest</h3>
+<p><strong> </strong>The ultimate vision of many who are pushing forward the Web platform is to make the Web platform as powerful, capable and comprehensive as native applications.  The first 10 items each open up the Web platform to large new application domains that have historically only been possible with native applications. But they leave many gaps that must be filled before we reach a future where the question asked by developers is no longer "<em><strong>Can I build this as a web application?</strong></em>" but rather "<em><strong>Do I want to build this as a web application?</strong></em>"</p>
+<p>There are numerous proposals that are being worked on to address the gaps in web application functionality. Several of them would probably be higher on the list if they were further along or had less uncertainty about whether they will be universally adopted by all browser makers. Here are just a few of the proposals/APIs that are attempting to fill the gaps:</p>
+<ul>
+<li><strong>WebRTC/Stream API</strong>: Peer-to-peer video conferencing.</li>
+<li>﻿<strong>Geolocation</strong>: Where in the World am I?</li>
+<li><strong>Orientation</strong>: Which way is up?</li>
+<li><strong>Crypto</strong>: Encrypt/decrypt efficiently in Javascript</li>
+<li><strong>WebCL</strong>: The Web version of OpenCL. Who wouldn't want to use the GPU directly for computation from Javascript?</li>
+<li><strong>WebNotifications</strong>: Tell me what's happening, but gently.</li>
+<li><strong>Web Intents</strong>: Associate data types with default actions and pass data back and forth between web applications. Your favorite web application for editing images will inevitably be different then the default one for that web based slideshow application. Shout with me: "OLE!"</li>
+<li><strong>Page Visibility</strong>: Imagine how much energy the world would be save if those animations and movies stopped rendering when you aren't looking at them.</li>
+<li><strong>requestAnimationFrame</strong>: with setTimeout you get 100 FPS or you get 2 FPS (often within the same second). Now you can get a consistent 30 FPS. And there was much rejoicing.</li>
+<li><strong>Microdata</strong>: unambiguous parsing of embedded machine-readable data.</li>
+<li><strong>Etc</strong></li>
+<li><strong>Etc</strong> (<a href="#footnote3">Footnote 3</a>)</li>
+</ul>
+<p>&nbsp;</p>
+<div class="wp-caption aligncenter" style="width: 210px"><img src="http://imgs.xkcd.com/comics/mac_pc.png" alt="Mac vs PC vs Browser (xkcd.com)" width="200" height="371"/><p class="wp-caption-text">Mac vs PC vs Browser (from xkcd.com)</p></div>
+<h3>What about &lt;video&gt; and &lt;audio&gt;?</h3>
+<p>The &lt;video&gt; and &lt;audio&gt; tags are probably the HTML5 features that have caused the most excitement (and angst) on the web regarding HTML5. In fact, some of you may have scanned ahead looking for them in the list and were surprised they were not #1 and #2. These two elements are part of W3C HTML5 and while they do make first class elements out of what has traditionally been second class (e.g. done with Flash), they are still really just a better way of doing what has already been done. The &lt;video&gt; and &lt;audio&gt; tags don't significantly expand the scope of what web applications are capable of so that is one reason why they are not on the list. Another problem with these tags is that the list of supported media formats is inconsistent across browsers. Until this is resolved, their adoption will be hampered. (<a href="#footnote4">Footnote 4</a>)</p>
+<hr/>
+<p>&nbsp;</p>
+<h2>Footnotes</h2>
+<p>These were originally inline in the article and they seemed to interrupt the flow so I moved them here. And even without these notes the article is still too long.</p>
+<h4><a name="footnote1">Footnote 1</a></h4>
+<p>Here are some notable standards that developed around the Web platform in the first few years after the first web browser was released by Tim Berners-Lee:</p>
+<ul>
+<li>1995 - <a title="IETF HTML 2.0 Specification" href="http://tools.ietf.org/html/rfc1866">HTML 2.0</a> is published as the first official HTML standard.</li>
+<li>1995 - HTML make the first baby step toward becoming dynamic and interactive when JavaScript is created by Brendan Eich and added to Netscape Navigator 2.</li>
+<li>1996 - The CSS1 (Cascading Style Sheets) specification is completed and parts of it appear in Internet Explorer 3. Part of the reason for CSS is to separate web page appearance from content and functionality. This follows as well established principle in computer science of separating concerns.</li>
+<li>1998 - The DOM Level 1 (Document Object Model) specification, the API of HTML elements on a page, is published by the W3C.</li>
+</ul>
+<h4><a name="footnote2">Footnote 2</a></h4>
+<p>I should note another important group (with a long and forgettable name) that is involved in HTML standards is the <a title="WHATWG" href="http://www.whatwg.org/">Web Hypertext Application Technology Working Group (WHATWG)</a>. Many (perhaps most) of the people at WHATWG also participate in work at the W3C. The WHATWG can be thought as a more dynamic and less restricted version of the W3C.</p>
+<p>The WHATWG maintains two overarching standards documents. The first is <a title="WHATWG HTML Specification" href="http://www.whatwg.org/specs/web-apps/current-work/multipage/">HTML</a>.  Many of the ideas that are in the W3C HTML5 were first documented here. This document can be thought of HTML5+. The second standard document is called <a title="WHATWG Web Apps 1.0 Specification" href="https://web.archive.org/web/20111105131330/http://www.whatwg.org/specs/web-apps/current-work/multipage">Web Apps 1.0</a>.  This contains the content of the HTML document and adds many of the APIs that are considered important for the Web to become a full fledged application platform.</p>
+<p>The WHATWG Web Apps 1.0 document is much closer to what people generally mean when they use the term "HTML5", however, even that does not encapsulate the whole meaning. There are many other APIs and proposals that are part of the new energy of the Web that are or will make their way into most browsers (either via the standards process or not).</p>
+<h4><a name="footnote3">Footnote 3</a></h4>
+<p>Etc. I am not aware of a web proposal/API yet with those three letters. The question is will this article will make it more or less likely that there will be one soon?</p>
+<h4><a name="footnote4">Footnote 4</a></h4>
+<p>By combining fast Javascript, WebSockets, Canvas, Web Audio, and binary data types you can have video and audio without the &lt;video&gt;/&lt;audio&gt; tags and without any plugins. The frame rate and resolution might be lower than desired but it is possible.</p>
+<hr/>
+<p>&nbsp;</p>
+<h2>Resources</h2>
+<p>&nbsp;</p>
+<ul>
+<li><a title="Dive Into HTML5" href="https://web.archive.org/web/20201109001654/http://diveintohtml5.info/">Dive Into HTML5</a></li>
+<li><a title="HTML5Rocks" href="https://web.archive.org/web/20110902005801/http://www.html5rocks.com/en/">HTML5Rocks</a></li>
+<li>Excellent <a title="HTML5Rocks Presentation" href="https://web.archive.org/web/20100728045138/http://slides.html5rocks.com/#slide1">Presentation on HTML5</a> from HTML5Rocks</li>
+<li><a title="Can I use..." href="http://caniuse.com/">When can I use... </a> Compatibility tables for support of HTML5, CSS3, SVG and more in desktop and mobile browsers.</li>
+<li><a title="HTML5 Readiness" href="http://html5readiness.com/">HTML5 Readiness</a> - Flower chart of HTML5 &amp; CSS3 features in major browser versions</li>
+<li><a title="The HTML5 Test" href="http://beta.html5test.com/">The HTML5 Test</a> - How well does your browser support HTML5?</li>
+<li><a title="HTML5 Browser API list" href="https://html-now.github.io/">The Web Platform: Browser technologies</a> ()</li>
+<li><a title="HTML5 Twitter Page" href="https://x.com/html5">HTML5 Tweets</a></li>
+<li><a title="W3C blog" href="https://w3.org/blog">W3C Blog</a></li>
+<li><a title="WHATWG blog" href="https://blog.whatwg.org/">WHATWG Blog</a></li>
+<li><a title="Google Chrome blog" href="https://blog.google/products/chrome/">Google Chrome Blog</a></li>
+<li><a title="Mozilla Firefox blog" href="https://blog.mozilla.org/en/firefox/">Mozilla Firefox Blog</a></li>
+<li><a title="Opera Developer blog" href="https://blogs.opera.com/news/">Opera Developer Blog</a></li>
+<li><a title="Microsoft IE blog" href="https://web.archive.org/web/20111113231351/http://blogs.msdn.com/b/ie/">Microsoft Internet Explorer Blog</a></li>
+<li><a title="&quot;An Open Web&quot; online book" href="https://web.archive.org/web/20191018044201/https://en.flossmanuals.net/an-open-web/_info/">"An Open Web" book</a></li>
+<li><a title="20 Things Google comic" href="https://web.archive.org/web/20111112140028/http://www.20thingsilearned.com/en-US">"20 Things I Learned About Browsers and The Web"</a> Google comic</li>
+<li><a title="What is HTML5 (oreilly.com)" href="https://web.archive.org/web/20201112022805/http://radar.oreilly.com/2011/07/what-is-html5.html">"What is HTML5"</a></li>
+</ul>
+<h2>Links</h2>
+<p>&nbsp;</p>
+<ul>
+<li><a title="Early Web History (W3C)" href="http://www.w3.org/History.html)">Early History of the Web</a> (W3C)</li>
+<li><a title="Where the web was born (CERN)" href="http://public.web.cern.ch/public/en/about/web-en.html)">Where the web was born</a> (CERN)</li>
+<li><a title="W3C" href="http://www.w3.org/">W3C</a></li>
+<li><a title="W3C HTML5" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/html5/">W3C HTML5</a></li>
+<li><a title="WHATWG" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/">WHATWG</a></li>
+<li><a title="WHATWG HTML Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/multipage/">WHATWG HTML</a></li>
+<li><a title="WHATWG Web Apps 1.0 Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/complete/">WHATWG Web Apps 1.0</a></li>
+<li>1. EcmaScript/Javascript: <a title="ECMA-262 Standard" href="https://ecma-international.org/publications-and-standards/standards/ecma-262/">ECMA-262</a></li>
+<li>2. WebSockets
+<ul>
+<li>API: <a title="W3C WebSockets API" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/websockets/">W3C</a>, <a title="W3C WebSockets API" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/complete/network.html">WHATWG</a></li>
+<li>Protocol: <a title="IETF/HyBi WebSockets Protocol" href="https://web.archive.org/web/20201112022805/http://tools.ietf.org/html/draft-ietf-hybi-thewebsocketprotocol-10">IETF/HyBi</a></li>
+</ul>
+</li>
+<li>3. Binary Data Types
+<ul>
+<li><a title="Typed Array Specification" href="https://web.archive.org/web/20201112022805/http://www.khronos.org/registry/typedarray/specs/latest/">Typed Arrays</a></li>
+<li><a title="Blob Type Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/FileAPI/#blob">Blob Type</a></li>
+</ul>
+</li>
+<li>4. Web Audio: <a title="Google Web Audio API" href="https://web.archive.org/web/20201112022805/http://chromium.googlecode.com/svn/trunk/samples/audio/specification/specification.html">Google</a>, <a title="Mozilla Audio Data API" href="https://web.archive.org/web/20201112022805/https://wiki.mozilla.org/Audio_Data_API">Mozilla</a>, <a title="W3C Audio" href="https://web.archive.org/web/20201112022805/http://www.w3.org/2011/audio/">W3C</a></li>
+<li>5. Canvas 2D Context: <a title="W3C Canvas 2D Context Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/2dcontext/">W3C</a>, <a title="WHATWG Canvas Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/multipage/the-canvas-element.html">WHATWG</a></li>
+<li>6. CSS and WOFF
+<ul>
+<li>CSS3: <a title="W3C CSS" href="https://web.archive.org/web/20201112022805/http://www.w3.org/Style/CSS/current-work">W3C</a></li>
+<li>WOFF: <a title="W3C WOFF Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/WOFF/">W3C</a></li>
+</ul>
+</li>
+<li>7. Local Storage, Offline Application and the File APIs
+<ul>
+<li>Web Storage: <a title="W3C Web Storage Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/webstorage/">W3C</a></li>
+<li>IndexedDB: <a title="W3C IndexedDB Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/IndexedDB/">W3C</a></li>
+<li>Offline Applications: <a title="W3C Offline Applications Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/spec/offline.html">W3C</a>, <a title="WHATWG Offline Applications Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/multipage/offline.html">WHATWG</a></li>
+<li>File/Reader: <a title="W3C File (Reader) API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2006/webapi/FileAPI/">W3C</a></li>
+<li>File Writer: <a title="W3C File Writer API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2009/dap/file-system/file-writer.html">W3C</a></li>
+<li>File Dir/System: <a title="W3C File Directories/System API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2009/dap/file-system/file-dir-sys.html">W3C</a></li>
+</ul>
+</li>
+<li>8. Web Workers: <a title="W3C Web Workers Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/html5/workers/">W3C</a>, <a title="WHATWG Web Workers Specification" href="https://web.archive.org/web/20201112022805/http://www.whatwg.org/specs/web-apps/current-work/complete/workers.html">WHATWG</a></li>
+<li>9. SVG 1.1/2.0:
+<ul>
+<li><a title="W3C SVG 1.1 Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/SVG/">W3C 1.1</a></li>
+<li><a title="W3C SVG 2.0 Roadmap" href="https://web.archive.org/web/20201112022805/http://www.w3.org/Graphics/SVG/WG/wiki/Roadmap">SVG 2.0 W3C Roadmap</a></li>
+</ul>
+</li>
+<li>10. <a title="Khronos WebGL 1.0 Specification" href="https://web.archive.org/web/20201112022805/https://www.khronos.org/registry/webgl/specs/1.0/">WebGL</a></li>
+<li>11. All the Rest
+<ul>
+<li><a title="Google WebRTC Project" href="https://web.archive.org/web/20201112022805/https://sites.google.com/site/webrtc/">WebRTC</a>/Stream API</li>
+<li><a title="W3C Geolocation Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/geo/api/spec-source-v2">Geolocation</a></li>
+<li><a title="W3C Orientation Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/geo/api/spec-source-orientation">Orientation</a></li>
+<li><a title="Mozilla DomCrypto API Proposal" href="https://web.archive.org/web/20201112022805/https://wiki.mozilla.org/Privacy/Features/DOMCryptAPISpec/Latest">Crypto</a></li>
+<li><a title="Khronos WebCL" href="https://web.archive.org/web/20201112022805/http://www.khronos.org/webcl/">WebCL</a></li>
+<li><a title="W3C WebNotifications API Specification" href="https://web.archive.org/web/20201112022805/http://dev.w3.org/2006/webapi/WebNotifications/">WebNotifications</a></li>
+<li><a title="Google Web Intents Project" href="https://web.archive.org/web/20201112022805/http://webintents.org/">Web Intents</a></li>
+<li><a title="W3C Page Visibility API Specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/2011/WD-page-visibility-20110602/">Page Visibility</a></li>
+<li><a title="Google requestAnimationFrame Proposal" href="https://web.archive.org/web/20201112022805/http://webstuff.nfshost.com/anim-timing/Overview.html">requestAnimationFrame</a></li>
+<li><a title="W3C Microdata specification" href="https://web.archive.org/web/20201112022805/http://www.w3.org/TR/microdata/">Microdata</a></li>
+</ul>
+</li>
+</ul>
+<p>&nbsp;</p>
+</div>
+</article>
