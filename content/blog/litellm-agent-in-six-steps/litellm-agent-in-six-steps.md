@@ -6,6 +6,8 @@ tags: ["llm", "ai", "python", "software", "coding", "agent", "agents",
 "litellm", "API", "GitHub Copilot", "Github", "Copilot"]
 ---
 
+**[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]**
+
 In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.
 
 # Step 0: Prerequisites (uv, LiteLLM, etc)
@@ -203,21 +205,23 @@ We pass this new tools structure in the `completion` call:
     )
 ```
 
-If the assistant decides that it wants to call a tool, then the
-response message will contain a populated `tool_calls` field. If this
-field is set then we need to parse each element to extract the
-function name and arguments, perform the actions, and add a tool call
-response with the results to the context (messages list).
-
-First lets add a `trunc` function for abbreviating long tool call
-arguments and output:
+Let's add a `trunc` function for abbreviating long output messages
+that we'll use in the next step:
 
 ```python
 def trunc(s, max=80):
     return s[:max-4] + '...' if len(s) >= max else s
 ```
 
-Then, replace the assistant output message line with the following:
+If the assistant decides that it wants to call a tool, then the
+response message will contain a populated `tool_calls` field. If this
+field is set and the tool name is `read_file`, then we parse
+the arguments (which are encoded as a JSON string), then we read the
+file referred to in the `path` argument, and finally we append a tool
+call response to the context (messages list). The response message
+contains the original unique ID for this tool call and has a "content"
+field that contains the JSON encoded result of the tool call. Replace
+the assistant output message line as follows:
 
 ```python
     tool_calls = resp_message.tool_calls
@@ -275,10 +279,13 @@ The current implementation uses a hard-coded definition for the
 `read_file` tool that is passed to the `completion` API. Instead of
 creating a new definition for each tool that we want to support, we
 can use python's introspection to generate this definition from the
-python functions themselves.
+python functions themselves. The `inspect.signature` function returns
+detailed information about each parameter of a python function. We use
+this information to construct the map of parameter map needed for the
+`completion` call.
 
 Define a function that that takes a map of tools names to functions
-and returns the tools parameter value needed for the `completion` API:
+and returns the `tools` value needed for the `completion` API:
 
 ```python
 import inspect
@@ -308,6 +315,8 @@ def get_tools_param(tools_map):
         })
     return tools
 ```
+
+
 
 Then define the tool functions with a sufficient docstring and result
 format that makes it clear to the assistant how the tools should be
