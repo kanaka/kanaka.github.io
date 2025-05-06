@@ -15,7 +15,8 @@
     <link href="https://example.com/blog/litellm-agent-in-six-steps/" />
     <updated>2025-05-01T00:00:00Z</updated>
     <id>https://example.com/blog/litellm-agent-in-six-steps/</id>
-    <content type="html">&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at &lt;a href=&quot;https://github.com/kanaka/litellm-agent&quot;&gt;github.com/kanaka/litellm-agent&lt;/a&gt;.&lt;/p&gt;
+    <content type="html">&lt;p&gt;&lt;strong&gt;[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at &lt;a href=&quot;https://github.com/kanaka/litellm-agent&quot;&gt;github.com/kanaka/litellm-agent&lt;/a&gt;.&lt;/p&gt;
 &lt;h1 id=&quot;step-0-prerequisites-uv-litellm-etc&quot;&gt;Step 0: Prerequisites (uv, LiteLLM, etc)&lt;/h1&gt;
 &lt;p&gt;You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.&lt;/p&gt;
 &lt;ul&gt;
@@ -168,16 +169,19 @@ tools &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class
         messages&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;messages&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
         tools&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;tools&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
     &lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;If the assistant decides that it wants to call a tool, then the
-response message will contain a populated &lt;code&gt;tool_calls&lt;/code&gt; field. If this
-field is set then we need to parse each element to extract the
-function name and arguments, perform the actions, and add a tool call
-response with the results to the context (messages list).&lt;/p&gt;
-&lt;p&gt;First lets add a &lt;code&gt;trunc&lt;/code&gt; function for abbreviating long tool call
-arguments and output:&lt;/p&gt;
+&lt;p&gt;Let&#39;s add a &lt;code&gt;trunc&lt;/code&gt; function for abbreviating long output messages
+that we&#39;ll use in the next step:&lt;/p&gt;
 &lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;trunc&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
     &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; s&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;...&#39;&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; s&lt;/code&gt;&lt;/pre&gt;
-&lt;p&gt;Then, replace the assistant output message line with the following:&lt;/p&gt;
+&lt;p&gt;If the assistant decides that it wants to call a tool, then the
+response message will contain a populated &lt;code&gt;tool_calls&lt;/code&gt; field. If this
+field is set and the tool name is &lt;code&gt;read_file&lt;/code&gt;, then we parse
+the arguments (which are encoded as a JSON string), then we read the
+file referred to in the &lt;code&gt;path&lt;/code&gt; argument, and finally we append a tool
+call response to the context (messages list). The response message
+contains the original unique ID for this tool call and has a &amp;quot;content&amp;quot;
+field that contains the JSON encoded result of the tool call. Replace
+the assistant output message line as follows:&lt;/p&gt;
 &lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;    tool_calls &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;tool_calls
     &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;not&lt;/span&gt; tool_calls&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
         &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;assistant&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;resp_message&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
@@ -221,9 +225,12 @@ assistant&gt; The first line of the file is: #!/usr/bin/env python3&lt;/code&gt;
 &lt;code&gt;read_file&lt;/code&gt; tool that is passed to the &lt;code&gt;completion&lt;/code&gt; API. Instead of
 creating a new definition for each tool that we want to support, we
 can use python&#39;s introspection to generate this definition from the
-python functions themselves.&lt;/p&gt;
+python functions themselves. The &lt;code&gt;inspect.signature&lt;/code&gt; function returns
+detailed information about each parameter of a python function. We use
+this information to construct the map of parameter map needed for the
+&lt;code&gt;completion&lt;/code&gt; call.&lt;/p&gt;
 &lt;p&gt;Define a function that that takes a map of tools names to functions
-and returns the tools parameter value needed for the &lt;code&gt;completion&lt;/code&gt; API:&lt;/p&gt;
+and returns the &lt;code&gt;tools&lt;/code&gt; value needed for the &lt;code&gt;completion&lt;/code&gt; API:&lt;/p&gt;
 &lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; inspect
 
 &lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;get_tools_param&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;tools_map&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;

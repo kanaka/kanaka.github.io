@@ -511,6 +511,7 @@ pre[class*="language-diff-"] {
 	<li><a href="/tags/copilot/" class="post-tag">Copilot</a></li>
 </ul>
 
+<p><strong>[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]</strong></p>
 <p>In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.</p>
 <h1 id="step-0-prerequisites-uv-litellm-etc">Step 0: Prerequisites (uv, LiteLLM, etc)</h1>
 <p>You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.</p>
@@ -664,16 +665,19 @@ tools <span class="token operator">=</span> <span class="token punctuation">[</s
         messages<span class="token operator">=</span>messages<span class="token punctuation">,</span>
         tools<span class="token operator">=</span>tools<span class="token punctuation">,</span>
     <span class="token punctuation">)</span></code></pre>
-<p>If the assistant decides that it wants to call a tool, then the
-response message will contain a populated <code>tool_calls</code> field. If this
-field is set then we need to parse each element to extract the
-function name and arguments, perform the actions, and add a tool call
-response with the results to the context (messages list).</p>
-<p>First lets add a <code>trunc</code> function for abbreviating long tool call
-arguments and output:</p>
+<p>Let's add a <code>trunc</code> function for abbreviating long output messages
+that we'll use in the next step:</p>
 <pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">trunc</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token builtin">max</span><span class="token operator">=</span><span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
     <span class="token keyword">return</span> s<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token builtin">max</span><span class="token operator">-</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token string">'...'</span> <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token builtin">max</span> <span class="token keyword">else</span> s</code></pre>
-<p>Then, replace the assistant output message line with the following:</p>
+<p>If the assistant decides that it wants to call a tool, then the
+response message will contain a populated <code>tool_calls</code> field. If this
+field is set and the tool name is <code>read_file</code>, then we parse
+the arguments (which are encoded as a JSON string), then we read the
+file referred to in the <code>path</code> argument, and finally we append a tool
+call response to the context (messages list). The response message
+contains the original unique ID for this tool call and has a &quot;content&quot;
+field that contains the JSON encoded result of the tool call. Replace
+the assistant output message line as follows:</p>
 <pre class="language-python" tabindex="0"><code class="language-python">    tool_calls <span class="token operator">=</span> resp_message<span class="token punctuation">.</span>tool_calls
     <span class="token keyword">if</span> <span class="token keyword">not</span> tool_calls<span class="token punctuation">:</span>
         <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"assistant> </span><span class="token interpolation"><span class="token punctuation">{</span>resp_message<span class="token punctuation">.</span>content<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span>
@@ -717,9 +721,12 @@ assistant> The first line of the file is: #!/usr/bin/env python3</code></pre>
 <code>read_file</code> tool that is passed to the <code>completion</code> API. Instead of
 creating a new definition for each tool that we want to support, we
 can use python's introspection to generate this definition from the
-python functions themselves.</p>
+python functions themselves. The <code>inspect.signature</code> function returns
+detailed information about each parameter of a python function. We use
+this information to construct the map of parameter map needed for the
+<code>completion</code> call.</p>
 <p>Define a function that that takes a map of tools names to functions
-and returns the tools parameter value needed for the <code>completion</code> API:</p>
+and returns the <code>tools</code> value needed for the <code>completion</code> API:</p>
 <pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">import</span> inspect
 
 <span class="token keyword">def</span> <span class="token function">get_tools_param</span><span class="token punctuation">(</span>tools_map<span class="token punctuation">)</span><span class="token punctuation">:</span>
@@ -909,7 +916,7 @@ has trouble using the tools the way they are currently defined.</li>
 			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
 		</footer>
 
-		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-05-02T18:38:01.279Z -->
+		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-05-06T18:07:08.532Z -->
 		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
 	</body>
 </html>
