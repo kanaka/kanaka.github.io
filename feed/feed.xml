@@ -5,11 +5,304 @@
   <subtitle>This is a longer description about your blog.</subtitle>
   <link href="https://example.com/feed/feed.xml" rel="self" />
   <link href="https://example.com/" />
-  <updated>2025-05-01T00:00:00Z</updated>
+  <updated>2025-06-12T00:00:00Z</updated>
   <id>https://example.com/</id>
   <author>
     <name>Your Name</name>
   </author>
+  <entry>
+    <title>A new LLM Coding Agent in 5 incremental steps and less than 80 lines of python</title>
+    <link href="https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/" />
+    <updated>2025-06-12T00:00:00Z</updated>
+    <id>https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/</id>
+    <content type="html">&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison&#39;s excellent &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; library. We will also use Github Copilot for access to LLM models which means all you need to get started is a github account (no LLM API sign-up/credit card required).&lt;/p&gt;
+&lt;p&gt;This is very similar to a previous previous post &lt;a href=&quot;https://example.com/blog/litellm-agent-in-six-steps/&quot;&gt;An LLM Coding Agent in 6 incremental steps and about 140 lines of python&lt;/a&gt;. The key difference is the use of &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.&lt;/p&gt;
+&lt;h1 id=&quot;step-0-prerequisites-uv-llm-etc&quot;&gt;Step 0: Prerequisites (uv, llm, etc)&lt;/h1&gt;
+&lt;p&gt;You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Create a directory for your agent:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ mkdir my-agent&lt;/em&gt;
+&lt;em&gt;$ cd my-agent&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Install &lt;code&gt;uv&lt;/code&gt; (if you have not already) and then setup a python
+virtual environment:&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ curl -LsSf https://astral.sh/uv/install.sh | sh&lt;/em&gt;
+&lt;em&gt;$ uv venv&lt;/em&gt;
+&lt;em&gt;$ source .venv/bin/activate&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Install versions of &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; and the
+&lt;a href=&quot;https://github.com/jmdaly/llm-github-copilot&quot;&gt;llm-github-copilot&lt;/a&gt;
+plugin that have sufficient tool calling support.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ uv pip install &quot;git+https://github.com/simonw/llm.git&quot;&lt;/em&gt;
+&lt;em&gt;$ uv pip install &quot;git+https://github.com/jmdaly/llm-github-copilot.git@refs/pull/18/head#egg=llm_github_copilot&quot;&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The full code for each of the steps can be found at &lt;a href=&quot;https://github.com/kanaka/llm-agent&quot;&gt;github.com/kanaka/llm-agent&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;In the examples that follow, user input that is typed into the agent is shown with a &lt;span style=&quot;color: plum&quot;&gt;plum&lt;/span&gt; color.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;step-1-single-api-call&quot;&gt;Step 1: Single API call&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.avif 582w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.webp 582w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.png&quot; alt=&quot;Diagram of Step 1 - Single API call&quot; width=&quot;582&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;First, we are going to make a single API prompt call to our
+chosen LLM model and simply print the result. For this step, we will
+pass the first argument on the command line as the prompt that we want
+to send the LLM model.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; llm
+&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; sys
+DEFAULT_MODEL &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;github_copilot/o3-mini&quot;&lt;/span&gt;
+
+model &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;get_model&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;DEFAULT_MODEL&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; model&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;prompt&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;sys&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;argv&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;text&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now run your new &amp;quot;agent&amp;quot;:&lt;/p&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ chmod +x agent.py&lt;/em&gt;
+
+&lt;em&gt;$ ./agent.py &quot;In a single sentence, define the word &#39;agent&#39;&quot;&lt;/em&gt;
+An agent is someone or something that acts on behalf of another person or entity, or that produces a specific effect.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We make a single call LLM model and provide it with a single &amp;quot;user&amp;quot;
+message. We then print the response message from the LLM.&lt;/p&gt;
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The first time you run your agent with a Github Copilot model, you
+will be shown an 8 character code that you need to fill in at the
+provided github URL in order to authorize this client. Once you do
+this, API access token refreshes will happen automatically.&lt;/li&gt;
+&lt;li&gt;With the Github Copilot free plan, you get 50 &amp;quot;&lt;a href=&quot;https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests&quot;&gt;premium requests&lt;/a&gt;&amp;quot; per
+month. The code above uses &amp;quot;&lt;code&gt;github_copilot/o3-mini&lt;/code&gt;&amp;quot; because it is
+currently the least expensive model with excellent coding ability
+(at 0.33 premium requests per call). The
+&amp;quot;&lt;code&gt;github_copilot/gemini-2.0-flash-001&lt;/code&gt;&amp;quot; model is slightly cheaper
+(at 0.25 per call) but does not have full tool calling support via
+Github Copilot.  If you have paid plan then you can switch the model
+to &lt;code&gt;github_copilot/gpt-4.1&lt;/code&gt; to get unlimited &lt;code&gt;completion&lt;/code&gt; calls.&lt;/li&gt;
+&lt;li&gt;Refer to &lt;a href=&quot;https://llm.datasette.io/en/latest/python-api.html#basic-prompt-execution&quot;&gt;llm prompt API documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;step-2-chat-loop&quot;&gt;Step 2: Chat loop&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.avif 582w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.webp 582w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.png&quot; alt=&quot;Diagram of Step 2 - Chat loop&quot; width=&quot;582&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;Our current implementation makes a single query, prints the response,
+and then exits. We don&#39;t have a way to &amp;quot;chat&amp;quot; with the model. LLM
+models via their direct APIs are essentially stateless. The client
+has to provide all the state/context for each call. The llm library
+provides a conversation object that will accumlate this state for us.&lt;/p&gt;
+&lt;p&gt;Let&#39;s construct a conversation instance and then wrap its prompt calls
+in a loop. The loop prompts for a user prompt, calls the
+&lt;code&gt;conversation.prompt&lt;/code&gt; API with the user prompt, and then prints the
+response.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;#!/usr/bin/env python3&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; llm
+DEFAULT_MODEL &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;github_copilot/o3-mini&quot;&lt;/span&gt;
+
+&lt;span class=&quot;token comment&quot;&gt;# Conversation setup&lt;/span&gt;
+
+model &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;get_model&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;DEFAULT_MODEL&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+conversation &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; model&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;conversation&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;while&lt;/span&gt; &lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;try&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        user_input &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;user&gt; &quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;except&lt;/span&gt; EOFError &lt;span class=&quot;token keyword&quot;&gt;as&lt;/span&gt; e&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+        &lt;span class=&quot;token keyword&quot;&gt;break&lt;/span&gt;
+
+    response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; conversation&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;prompt&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;user_input&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;assistant&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;response&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;text&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot; (user input is shown with a &lt;span style=&quot;color: plum&quot;&gt;plum&lt;/span&gt; color):&lt;/p&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;List five funny names for a Linux computer (without any explanation):&lt;/span&gt;
+assistant&gt; TuxTastic
+KernelKicker
+BashfulBot
+PenguinPirate
+SudoSultan
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;In a short sentence, explain why the fifth one is funny.&lt;/span&gt;
+assistant&gt; SudoSultan is funny because it blends the superuser command &quot;sudo&quot; with a regal title, humorously elevating its authority.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The second user query asks about the assistant&#39;s first response.
+A correct answer confirms that the context (previous user and
+assistant messages) is being accumulated correctly, otherwise the
+assistant would be unable to answer the followup question.&lt;/p&gt;
+&lt;h1 id=&quot;step-3-tool-calling&quot;&gt;Step 3: Tool calling&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.avif 741w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.webp 741w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.png&quot; alt=&quot;Diagram of Step 3 - Tool calling&quot; width=&quot;741&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;Our &amp;quot;agent&amp;quot; does not have much agency; it can&#39;t do anything unless it
+can convince the user to act on it&#39;s behalf. If I ask &amp;quot;Show me what&#39;s
+in file ./README.md.&amp;quot;, the assistant will likely answer that it can&#39;t
+do that, but will give suggestions to the user for how to view the
+file themselves.&lt;/p&gt;
+&lt;p&gt;Let&#39;s take a step towards greater agency by defining a tool that the
+assistant can invoke. Define a function &lt;code&gt;read_file&lt;/code&gt; that the
+assistant can invoke and add it to a tools list:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token comment&quot;&gt;# Tool definitions&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;read_file&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;str&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token string&quot;&gt;&quot;Read the file at path. Returns a map {&#39;content&#39;:content}&quot;&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;content&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;read&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+tools &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;read_file&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Let&#39;s also define some debug functions for concisely showing tool
+calls and responses and then pass the tools&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;trunc&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;80&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; s&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;&lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt;&lt;span class=&quot;token operator&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;token number&quot;&gt;4&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;+&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;...&#39;&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;len&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;s&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token operator&quot;&gt;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;max&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;else&lt;/span&gt; s
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;before_call&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;tool&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tool_call&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;tool call&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;tool&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;name&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;tool_call&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;arguments&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;)&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;after_call&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;tool&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tool_call&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; tool_result&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;print&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;trunc&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string-interpolation&quot;&gt;&lt;span class=&quot;token string&quot;&gt;f&quot;tool result&gt; &lt;/span&gt;&lt;span class=&quot;token interpolation&quot;&gt;&lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;tool_result&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;output&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;We need to include the tools list and debug functions when we
+instantiate our conversation instance:&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;model &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; llm&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;get_model&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;DEFAULT_MODEL&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+conversation &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; model&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;conversation&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;
+    tools&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;tools&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    before_call&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;before_call&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+    after_call&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;after_call&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt;
+&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Finally, in our loop, we use the &lt;code&gt;conversation.chain&lt;/code&gt; method instead
+of the &lt;code&gt;prompt&lt;/code&gt; method.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;    response &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; conversation&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;chain&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;user_input&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;The &lt;code&gt;chain&lt;/code&gt; method will will automatically
+detect when the assistant returns a response containing a tool call.
+It will then run that tool and send the result of the tool to the
+assistant. All tool calls are resolved before the &lt;code&gt;chain&lt;/code&gt; method
+returns with the final assistant response.&lt;/p&gt;
+&lt;p&gt;Run our new version of the &amp;quot;agent&amp;quot;:&lt;/p&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;List the imports in ./agent.py&lt;/span&gt;
+tool call&gt; read_file({&#39;path&#39;: &#39;./agent.py&#39;})
+tool result&gt; {&quot;content&quot;: &quot;#!/usr/bin/env python3&#92;n&#92;nimport llm&#92;nDEFAULT_MODE...
+assistant&gt; The file contains a single import:
+
+import llm&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Refer to &lt;a href=&quot;https://llm.datasette.io/en/latest/python-api.html#conversations&quot;&gt;llm conversation API documentation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;step-4-file-editing-tools&quot;&gt;Step 4: File editing tools&lt;/h1&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.avif 741w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.webp 741w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.png&quot; alt=&quot;Diagram of Step 4 - file editing tools&quot; width=&quot;741&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;p&gt;Our agent has the ability to read files, now let&#39;s make the final
+small change that will turn it into a true coding agent. All that is
+need is a few more functions that give it the ability to list files,
+edit files, and create files.&lt;/p&gt;
+&lt;pre class=&quot;language-python&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-python&quot;&gt;&lt;span class=&quot;token keyword&quot;&gt;import&lt;/span&gt; subprocess
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;ls_dir&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Runs `ls -la path` to list files in the current directory.
+    Returns a map {&#39;stdout&#39;:stdout,&#39;stderr&#39;:stderr,&#39;returncode&#39;:code}&quot;&quot;&quot;&lt;/span&gt;
+    cp &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; subprocess&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;run&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;ls&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;-la&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; path&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; capture_output&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; text&lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;token boolean&quot;&gt;True&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    res &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;k&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;getattr&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;cp&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; k&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;for&lt;/span&gt; k &lt;span class=&quot;token keyword&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&#39;stdout&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;stderr&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&#39;returncode&#39;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; res
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;edit_file&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; replace&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Edit the file at &#39;path&#39; replacing the first occurence of
+    &#39;match&#39; string with &#39;replace&#39; string. &#39;match&#39; and &#39;replace&#39; are
+    raw strings and should not have escaped newlines, backslashes, etc.
+    Returns an empty map on success&quot;&quot;&quot;&lt;/span&gt;
+    orig &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;read&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    new &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; orig&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;replace&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token keyword&quot;&gt;match&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; replace&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token number&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;if&lt;/span&gt; new &lt;span class=&quot;token operator&quot;&gt;==&lt;/span&gt; orig&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;token keyword&quot;&gt;raise&lt;/span&gt; Exception&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;token string&quot;&gt;&quot;match string not found&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;write&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;new&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+&lt;span class=&quot;token keyword&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;token function&quot;&gt;create_file&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; content&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;:&lt;/span&gt;
+    &lt;span class=&quot;token triple-quoted-string string&quot;&gt;&quot;&quot;&quot;Create (or replace) file at &#39;path&#39; with &#39;content&#39;.
+    &#39;content&#39; is a raw string and does not need extra escaping.
+    Returns an empty map on success&quot;&quot;&quot;&lt;/span&gt;
+    &lt;span class=&quot;token builtin&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;path&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; &lt;span class=&quot;token string&quot;&gt;&quot;w&quot;&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;.&lt;/span&gt;write&lt;span class=&quot;token punctuation&quot;&gt;(&lt;/span&gt;content&lt;span class=&quot;token punctuation&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;token keyword&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;{&lt;/span&gt;&lt;span class=&quot;token punctuation&quot;&gt;}&lt;/span&gt;
+
+tools &lt;span class=&quot;token operator&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;token punctuation&quot;&gt;[&lt;/span&gt;read_file&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; ls_dir&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; edit_file&lt;span class=&quot;token punctuation&quot;&gt;,&lt;/span&gt; create_file&lt;span class=&quot;token punctuation&quot;&gt;]&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now let&#39;s use the new editing ability to make changes to a file:&lt;/p&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ echo &#39;hello NAME!&#39; &gt; greet.txt&lt;/em&gt;
+
+&lt;em&gt;$ ./agent.py&lt;/em&gt;
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Change the greeting in the text file to use my first name.&lt;/span&gt;
+assistant&gt; I need a bit more information before proceeding. Could you please tell me the file name (or path) of the text file you want to change, and also provide your first name that should be used in the greeting?
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;My name is Joel. You find the file.&lt;/span&gt;
+tool call&gt; ls_dir({&#39;path&#39;: &#39;.&#39;})
+tool result&gt; {&quot;stdout&quot;: &quot;total 20&#92;ndrwxrwxr-x  3 joelmartin joelmartin 4096 ...
+tool call&gt; read_file({&#39;path&#39;: &#39;greet.txt&#39;})
+tool result&gt; {&quot;content&quot;: &quot;hello NAME!&#92;n&quot;}
+tool call&gt; edit_file({&#39;match&#39;: &#39;NAME&#39;, &#39;path&#39;: &#39;greet.txt&#39;, &#39;replace&#39;: &#39;Joel&#39;})
+tool result&gt; {}
+assistant&gt; I&#39;ve updated greet.txt so that the greeting now reads &quot;hello Joel!&quot; Let me know if you need any further changes.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Note that sometimes the model will not ask the clarifying questions
+and will use the result of &lt;code&gt;ls_dir&lt;/code&gt; to guess the first name based on
+directory/file ownership.&lt;/p&gt;
+&lt;h1 id=&quot;step-5-final-changes-and-a-sprinkle-of-inception&quot;&gt;Step 5: Final changes (and a sprinkle of inception)&lt;/h1&gt;
+&lt;p&gt;Those four simple tools/abilities (list files, read a file, edit
+a file, and create a file) are enough to give our agent the ability to
+do coding tasks. So let&#39;s use our agent itself to make some final
+improvements to its own code.&lt;/p&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ ./agent.py&lt;/em&gt;
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Copy agent.py to agent2.py where we will make changes. Use correct python indenting for all future changes.&lt;/span&gt;
+tool call&gt; read_file({&#39;path&#39;: &#39;agent.py&#39;})
+tool result&gt; {&quot;content&quot;: &quot;#!/usr/bin/env python3&#92;n&#92;nimport llm&#92;nDEFAULT_MODE...
+tool call&gt; create_file({&#39;content&#39;: &#39;#!/usr/bin/env python3&#92;n&#92;nimport llm&#92;nDE...
+tool result&gt; {}
+assistant&gt; agent2.py has been created with the same content as agent.py. Let me know what changes you&#39;d like to make next.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Add a friendly startup message showing the model.&lt;/span&gt;
+tool call&gt; edit_file({&#39;match&#39;: &#39;)&#92;n&#92;nwhile True:&#39;, &#39;path&#39;: &#39;agent2.py&#39;, &#39;rep...
+tool result&gt; {}
+assistant&gt; I&#39;ve inserted a friendly startup message that displays the model in agent2.py. Let me know if you need any other modifications.
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;For the three prints and the input call, colorize the part before the &#39;&gt;&#39; using ASCII escape codes (red, green, blue, purple).&lt;/span&gt;
+tool call&gt; edit_file({&#39;match&#39;: &#39;input(&quot;user&gt; &quot;&#39;, &#39;path&#39;: &#39;agent2.py&#39;, &#39;repla...
+tool result&gt; {}
+tool call&gt; edit_file({&#39;match&#39;: &#39;tool call&gt;&#39;, &#39;path&#39;: &#39;agent2.py&#39;, &#39;replace&#39;:...
+tool result&gt; {}
+tool call&gt; edit_file({&#39;match&#39;: &#39;tool result&gt;&#39;, &#39;path&#39;: &#39;agent2.py&#39;, &#39;replace...
+tool result&gt; {}
+tool call&gt; edit_file({&#39;match&#39;: &#39;assistant&gt;&#39;, &#39;path&#39;: &#39;agent2.py&#39;, &#39;replace&#39;:...
+tool result&gt; {}
+assistant&gt; I&#39;ve updated agent2.py to colorize the parts before the &#39;&gt;&#39; using the specified ASCII escape codes:
+- The input prompt now colors &quot;user&quot; in red,
+- The &quot;tool call&gt;&quot; prefix is colored in green,
+- The &quot;tool result&gt;&quot; prefix is colored in blue,
+- The &quot;assistant&gt;&quot; prefix is colored in purple.
+
+Let me know if there are any further changes you&#39;d like to apply!
+user&gt; &lt;span style=&quot;color: plum&quot;&gt;Before calling a tool, confirm with the user. If confirmed continue as before, otherwise raise a llm.CancelToolCall exception with a &quot;User Refused&quot; message.&lt;/span&gt;
+tool call&gt; edit_file({&#39;match&#39;: &#39;print(trunc(f&quot;&#92;&#92;033[32mtool call&#92;&#92;033[0m&gt; {t...
+tool result&gt; {}
+assistant&gt; I&#39;ve updated the agent2.py before_call function to confirm with the user before calling a tool. The tool call will now prompt the user with &quot;Proceed with tool call? (y/n)&quot; and raise a llm.CancelToolCall exception if the user does not confirm.
+
+Let me know if additional modifications are needed!&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Now review the code changes and then test our agent modified agent:&lt;/p&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ diff -urp agent.py agent2.py&lt;/em&gt;
+...
+
+&lt;em&gt;$ chmod +x agent2.py&lt;/em&gt;
+
+&lt;em&gt;$ ./agent2.py&lt;/em&gt;
+Agent started with model: github_copilot/o3-mini
+&lt;span style=&quot;color: red&quot;&gt;user&lt;/span&gt;&gt; &lt;span style=&quot;color: plum&quot;&gt;What is in ./greet.txt?&lt;/span&gt;
+&lt;span style=&quot;color: green&quot;&gt;tool call&lt;/span&gt;&gt; read_file({&#39;path&#39;: &#39;./greet.txt&#39;})
+Proceed with tool call? (y/n) &lt;span style=&quot;color: plum&quot;&gt;y&lt;/span&gt;
+&lt;span style=&quot;color: blue&quot;&gt;tool result&lt;/span&gt;&gt; {&quot;content&quot;: &quot;hello Joel!&#92;n&quot;}
+&lt;span style=&quot;color: purple&quot;&gt;assistant&lt;/span&gt;&gt; The file contains: &quot;hello Joel!&quot; followed by a newline.&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;Notes:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The full code for each of the steps can be found at &lt;a href=&quot;https://github.com/kanaka/llm-agent&quot;&gt;github.com/kanaka/llm-agent&lt;/a&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id=&quot;step-6-you-take-it-from-here&quot;&gt;Step 6: You take it from here!&lt;/h1&gt;
+&lt;p&gt;You now have a basic working coding agent. The next steps are up to
+you. Here are some ideas:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Add streaming output so that you can see the progress of the model
+as it is generating longer responses.&lt;/li&gt;
+&lt;li&gt;Make the tool confirmation more sophisticated and allow specific
+actions or whole tools to be run without confirmation the next time.&lt;/li&gt;
+&lt;li&gt;Add proper python argument parsing. Allow the model name, system
+prompt, tool confirmation mode, etc to be specified as command
+line. Allow the initial query to optionally be specified on the
+command line (like step 1).&lt;/li&gt;
+&lt;li&gt;Give it the ability to run tests.&lt;/li&gt;
+&lt;/ul&gt;
+</content>
+  </entry>
   <entry>
     <title>An LLM Coding Agent in 6 incremental steps and about 140 lines of python</title>
     <link href="https://example.com/blog/litellm-agent-in-six-steps/" />

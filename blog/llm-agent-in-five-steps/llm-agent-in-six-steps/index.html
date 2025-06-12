@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>A new LLM Coding Agent in 5 incremental steps and less than 80 lines of python</title>
+		<meta name="description" content="I will show you how to create a working LLM coding agent in 5 incremental steps (and under 80 lines of code). We will use the python &#39;llm&#39; library and use Github Copilot which means all you need is a github account (no LLM API sign-up needed) to get started.">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Joel Martin&#39;s Weblog">
+		
+		
+		
+		
+		<style>/* This is an arbitrary CSS string added to the bundle */
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+@view-transition {
+	navigation: auto;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+/* Fluid images via https://www.zachleat.com/web/fluid-images/ */
+img{
+  max-width: 100%;
+}
+img[width][height] {
+  height: auto;
+}
+img[src$=".svg"] {
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+video,
+iframe {
+	width: 100%;
+	height: auto;
+}
+iframe {
+	aspect-ratio: 16/9;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main,
+footer {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	display: flex;
+	justify-content: space-between;
+	gap: .5em 1em;
+	list-style: "";
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+.links-nextprev > * {
+	flex-grow: 1;
+}
+.links-nextprev-next {
+	text-align: right;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	overflow-x: auto;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	flex-grow: 1;
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	gap: .5em 1em;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	counter-reset: start-from var(--postlist-index);
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+/* smaller code block font size. !important needed to override theme
+ * which inserts it's CSS late */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 0.80rem !important;          /* e.g. 14 px if body text is 16 px  */
+  line-height: 1.4 !important;
+}
+
+/* do not capitalize tags/labels */
+.post-tag {
+	text-transform: unset;
+}
+/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}</style>
+		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Joel Martin&#39;s Weblog</a>
+			<nav>
+				<h2 class="visually-hidden" id="top-level-navigation-menu">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About</a></li>
+					<li class="nav-item"><a href="/feed/feed.xml">Feed</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			<heading-anchors>
+				
+
+
+<h1 id="a-new-llm-coding-agent-in-5-incremental-steps-and-less-than-80-lines-of-python">A new LLM Coding Agent in 5 incremental steps and less than 80 lines of python</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2025-06-12">12 June 2025</time></li>
+	<li><a href="/tags/llm/" class="post-tag">LLM</a>, </li>
+	<li><a href="/tags/ai/" class="post-tag">AI</a>, </li>
+	<li><a href="/tags/python/" class="post-tag">python</a>, </li>
+	<li><a href="/tags/software/" class="post-tag">software</a>, </li>
+	<li><a href="/tags/coding/" class="post-tag">coding</a>, </li>
+	<li><a href="/tags/agent/" class="post-tag">agent</a>, </li>
+	<li><a href="/tags/agents/" class="post-tag">agents</a>, </li>
+	<li><a href="/tags/datasette/" class="post-tag">datasette</a>, </li>
+	<li><a href="/tags/simon-willison/" class="post-tag">Simon Willison</a>, </li>
+	<li><a href="/tags/api/" class="post-tag">API</a>, </li>
+	<li><a href="/tags/github-copilot/" class="post-tag">GitHub Copilot</a>, </li>
+	<li><a href="/tags/github/" class="post-tag">Github</a>, </li>
+	<li><a href="/tags/copilot/" class="post-tag">Copilot</a>, </li>
+	<li><a href="/tags/llm-github-copilot/" class="post-tag">llm-github-copilot</a>, </li>
+	<li><a href="/tags/tool-calling/" class="post-tag">tool calling</a></li>
+</ul>
+
+<p>In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison's excellent <a href="https://github.com/simonw/llm">llm</a> library. We will also use Github Copilot for access to LLM models which means all you need to get started is a github account (no LLM API sign-up/credit card required).</p>
+<p>This is very similar to a previous previous post <a href="/blog/litellm-agent-in-six-steps/">An LLM Coding Agent in 6 incremental steps and about 140 lines of python</a>. The key difference is the use of <a href="https://github.com/simonw/llm">llm</a> instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.</p>
+<h1 id="step-0-prerequisites-uv-llm-etc">Step 0: Prerequisites (uv, llm, etc)</h1>
+<p>You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.</p>
+<ul>
+<li>Create a directory for your agent:</li>
+</ul>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ mkdir my-agent</em>
+<em>$ cd my-agent</em></code></pre>
+<ul>
+<li>Install <code>uv</code> (if you have not already) and then setup a python
+virtual environment:</li>
+</ul>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ curl -LsSf https://astral.sh/uv/install.sh | sh</em>
+<em>$ uv venv</em>
+<em>$ source .venv/bin/activate</em></code></pre>
+<ul>
+<li>Install versions of <a href="https://github.com/simonw/llm">llm</a> and the
+<a href="https://github.com/jmdaly/llm-github-copilot">llm-github-copilot</a>
+plugin that have sufficient tool calling support.</li>
+</ul>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ uv pip install "git+https://github.com/simonw/llm.git"</em>
+<em>$ uv pip install "git+https://github.com/jmdaly/llm-github-copilot.git@refs/pull/18/head#egg=llm_github_copilot"</em></code></pre>
+<p>We are now ready to start the fun!</p>
+<p>Notes:</p>
+<ul>
+<li>The full code for each of the steps can be found at <a href="https://github.com/kanaka/llm-agent">github.com/kanaka/llm-agent</a>.</li>
+<li>In the examples that follow, user input that is typed into the agent is shown with a <span style="color: plum">plum</span> color.</li>
+</ul>
+<h1 id="step-1-single-api-call">Step 1: Single API call</h1>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.avif 582w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.webp 582w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.png" alt="Diagram of Step 1 - Single API call" width="582" height="422"></picture>
+<p>First, we are going to make a single API prompt call to our
+chosen LLM model and simply print the result. For this step, we will
+pass the first argument on the command line as the prompt that we want
+to send the LLM model.</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+
+<span class="token keyword">import</span> llm
+<span class="token keyword">import</span> sys
+DEFAULT_MODEL <span class="token operator">=</span> <span class="token string">"github_copilot/o3-mini"</span>
+
+model <span class="token operator">=</span> llm<span class="token punctuation">.</span>get_model<span class="token punctuation">(</span>DEFAULT_MODEL<span class="token punctuation">)</span>
+response <span class="token operator">=</span> model<span class="token punctuation">.</span>prompt<span class="token punctuation">(</span>sys<span class="token punctuation">.</span>argv<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+<span class="token keyword">print</span><span class="token punctuation">(</span>response<span class="token punctuation">.</span>text<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span></code></pre>
+<p>Now run your new &quot;agent&quot;:</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ chmod +x agent.py</em>
+
+<em>$ ./agent.py "In a single sentence, define the word 'agent'"</em>
+An agent is someone or something that acts on behalf of another person or entity, or that produces a specific effect.</code></pre>
+<p>We make a single call LLM model and provide it with a single &quot;user&quot;
+message. We then print the response message from the LLM.</p>
+<p>Notes:</p>
+<ul>
+<li>The first time you run your agent with a Github Copilot model, you
+will be shown an 8 character code that you need to fill in at the
+provided github URL in order to authorize this client. Once you do
+this, API access token refreshes will happen automatically.</li>
+<li>With the Github Copilot free plan, you get 50 &quot;<a href="https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests">premium requests</a>&quot; per
+month. The code above uses &quot;<code>github_copilot/o3-mini</code>&quot; because it is
+currently the least expensive model with excellent coding ability
+(at 0.33 premium requests per call). The
+&quot;<code>github_copilot/gemini-2.0-flash-001</code>&quot; model is slightly cheaper
+(at 0.25 per call) but does not have full tool calling support via
+Github Copilot.  If you have paid plan then you can switch the model
+to <code>github_copilot/gpt-4.1</code> to get unlimited <code>completion</code> calls.</li>
+<li>Refer to <a href="https://llm.datasette.io/en/latest/python-api.html#basic-prompt-execution">llm prompt API documentation</a></li>
+</ul>
+<h1 id="step-2-chat-loop">Step 2: Chat loop</h1>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.avif 582w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.webp 582w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.png" alt="Diagram of Step 2 - Chat loop" width="582" height="422"></picture>
+<p>Our current implementation makes a single query, prints the response,
+and then exits. We don't have a way to &quot;chat&quot; with the model. LLM
+models via their direct APIs are essentially stateless. The client
+has to provide all the state/context for each call. The llm library
+provides a conversation object that will accumlate this state for us.</p>
+<p>Let's construct a conversation instance and then wrap its prompt calls
+in a loop. The loop prompts for a user prompt, calls the
+<code>conversation.prompt</code> API with the user prompt, and then prints the
+response.</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token comment">#!/usr/bin/env python3</span>
+
+<span class="token keyword">import</span> llm
+DEFAULT_MODEL <span class="token operator">=</span> <span class="token string">"github_copilot/o3-mini"</span>
+
+<span class="token comment"># Conversation setup</span>
+
+model <span class="token operator">=</span> llm<span class="token punctuation">.</span>get_model<span class="token punctuation">(</span>DEFAULT_MODEL<span class="token punctuation">)</span>
+conversation <span class="token operator">=</span> model<span class="token punctuation">.</span>conversation<span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+<span class="token keyword">while</span> <span class="token boolean">True</span><span class="token punctuation">:</span>
+    <span class="token keyword">try</span><span class="token punctuation">:</span>
+        user_input <span class="token operator">=</span> <span class="token builtin">input</span><span class="token punctuation">(</span><span class="token string">"user> "</span><span class="token punctuation">)</span>
+    <span class="token keyword">except</span> EOFError <span class="token keyword">as</span> e<span class="token punctuation">:</span>
+        <span class="token keyword">break</span>
+
+    response <span class="token operator">=</span> conversation<span class="token punctuation">.</span>prompt<span class="token punctuation">(</span>user_input<span class="token punctuation">)</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"assistant> </span><span class="token interpolation"><span class="token punctuation">{</span>response<span class="token punctuation">.</span>text<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span></code></pre>
+<p>Run our new version of the &quot;agent&quot; (user input is shown with a <span style="color: plum">plum</span> color):</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> <span style="color: plum">List five funny names for a Linux computer (without any explanation):</span>
+assistant> TuxTastic
+KernelKicker
+BashfulBot
+PenguinPirate
+SudoSultan
+user> <span style="color: plum">In a short sentence, explain why the fifth one is funny.</span>
+assistant> SudoSultan is funny because it blends the superuser command "sudo" with a regal title, humorously elevating its authority.</code></pre>
+<p>The second user query asks about the assistant's first response.
+A correct answer confirms that the context (previous user and
+assistant messages) is being accumulated correctly, otherwise the
+assistant would be unable to answer the followup question.</p>
+<h1 id="step-3-tool-calling">Step 3: Tool calling</h1>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.avif 741w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.png" alt="Diagram of Step 3 - Tool calling" width="741" height="422"></picture>
+<p>Our &quot;agent&quot; does not have much agency; it can't do anything unless it
+can convince the user to act on it's behalf. If I ask &quot;Show me what's
+in file ./README.md.&quot;, the assistant will likely answer that it can't
+do that, but will give suggestions to the user for how to view the
+file themselves.</p>
+<p>Let's take a step towards greater agency by defining a tool that the
+assistant can invoke. Define a function <code>read_file</code> that the
+assistant can invoke and add it to a tools list:</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token comment"># Tool definitions</span>
+
+<span class="token keyword">def</span> <span class="token function">read_file</span><span class="token punctuation">(</span>path<span class="token punctuation">:</span> <span class="token builtin">str</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token string">"Read the file at path. Returns a map {'content':content}"</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token string">"content"</span><span class="token punctuation">:</span> <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+
+tools <span class="token operator">=</span> <span class="token punctuation">[</span>read_file<span class="token punctuation">]</span></code></pre>
+<p>Let's also define some debug functions for concisely showing tool
+calls and responses and then pass the tools</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">def</span> <span class="token function">trunc</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token builtin">max</span><span class="token operator">=</span><span class="token number">80</span><span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">return</span> s<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token builtin">max</span><span class="token operator">-</span><span class="token number">4</span><span class="token punctuation">]</span> <span class="token operator">+</span> <span class="token string">'...'</span> <span class="token keyword">if</span> <span class="token builtin">len</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span> <span class="token operator">>=</span> <span class="token builtin">max</span> <span class="token keyword">else</span> s
+
+<span class="token keyword">def</span> <span class="token function">before_call</span><span class="token punctuation">(</span>tool<span class="token punctuation">,</span> tool_call<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"tool call> </span><span class="token interpolation"><span class="token punctuation">{</span>tool<span class="token punctuation">.</span>name<span class="token punctuation">}</span></span><span class="token string">(</span><span class="token interpolation"><span class="token punctuation">{</span>tool_call<span class="token punctuation">.</span>arguments<span class="token punctuation">}</span></span><span class="token string">)"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+<span class="token keyword">def</span> <span class="token function">after_call</span><span class="token punctuation">(</span>tool<span class="token punctuation">,</span> tool_call<span class="token punctuation">,</span> tool_result<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token keyword">print</span><span class="token punctuation">(</span>trunc<span class="token punctuation">(</span><span class="token string-interpolation"><span class="token string">f"tool result> </span><span class="token interpolation"><span class="token punctuation">{</span>tool_result<span class="token punctuation">.</span>output<span class="token punctuation">}</span></span><span class="token string">"</span></span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+</code></pre>
+<p>We need to include the tools list and debug functions when we
+instantiate our conversation instance:</p>
+<pre class="language-python" tabindex="0"><code class="language-python">model <span class="token operator">=</span> llm<span class="token punctuation">.</span>get_model<span class="token punctuation">(</span>DEFAULT_MODEL<span class="token punctuation">)</span>
+conversation <span class="token operator">=</span> model<span class="token punctuation">.</span>conversation<span class="token punctuation">(</span>
+    tools<span class="token operator">=</span>tools<span class="token punctuation">,</span>
+    before_call<span class="token operator">=</span>before_call<span class="token punctuation">,</span>
+    after_call<span class="token operator">=</span>after_call<span class="token punctuation">,</span>
+<span class="token punctuation">)</span></code></pre>
+<p>Finally, in our loop, we use the <code>conversation.chain</code> method instead
+of the <code>prompt</code> method.</p>
+<pre class="language-python" tabindex="0"><code class="language-python">    response <span class="token operator">=</span> conversation<span class="token punctuation">.</span>chain<span class="token punctuation">(</span>user_input<span class="token punctuation">)</span></code></pre>
+<p>The <code>chain</code> method will will automatically
+detect when the assistant returns a response containing a tool call.
+It will then run that tool and send the result of the tool to the
+assistant. All tool calls are resolved before the <code>chain</code> method
+returns with the final assistant response.</p>
+<p>Run our new version of the &quot;agent&quot;:</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> <span style="color: plum">List the imports in ./agent.py</span>
+tool call> read_file({'path': './agent.py'})
+tool result> {"content": "#!/usr/bin/env python3\n\nimport llm\nDEFAULT_MODE...
+assistant> The file contains a single import:
+
+import llm</code></pre>
+<p>Notes:</p>
+<ul>
+<li>Refer to <a href="https://llm.datasette.io/en/latest/python-api.html#conversations">llm conversation API documentation</a></li>
+</ul>
+<h1 id="step-4-file-editing-tools">Step 4: File editing tools</h1>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.avif 741w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.png" alt="Diagram of Step 4 - file editing tools" width="741" height="422"></picture>
+<p>Our agent has the ability to read files, now let's make the final
+small change that will turn it into a true coding agent. All that is
+need is a few more functions that give it the ability to list files,
+edit files, and create files.</p>
+<pre class="language-python" tabindex="0"><code class="language-python"><span class="token keyword">import</span> subprocess
+
+<span class="token keyword">def</span> <span class="token function">ls_dir</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Runs `ls -la path` to list files in the current directory.
+    Returns a map {'stdout':stdout,'stderr':stderr,'returncode':code}"""</span>
+    cp <span class="token operator">=</span> subprocess<span class="token punctuation">.</span>run<span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token string">"ls"</span><span class="token punctuation">,</span> <span class="token string">"-la"</span><span class="token punctuation">,</span> path<span class="token punctuation">]</span><span class="token punctuation">,</span> capture_output<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">,</span> text<span class="token operator">=</span><span class="token boolean">True</span><span class="token punctuation">)</span>
+    res <span class="token operator">=</span> <span class="token punctuation">{</span>k<span class="token punctuation">:</span> <span class="token builtin">getattr</span><span class="token punctuation">(</span>cp<span class="token punctuation">,</span> k<span class="token punctuation">)</span> <span class="token keyword">for</span> k <span class="token keyword">in</span> <span class="token punctuation">(</span><span class="token string">'stdout'</span><span class="token punctuation">,</span> <span class="token string">'stderr'</span><span class="token punctuation">,</span> <span class="token string">'returncode'</span><span class="token punctuation">)</span><span class="token punctuation">}</span>
+    <span class="token keyword">return</span> res
+
+<span class="token keyword">def</span> <span class="token function">edit_file</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> <span class="token keyword">match</span><span class="token punctuation">,</span> replace<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Edit the file at 'path' replacing the first occurence of
+    'match' string with 'replace' string. 'match' and 'replace' are
+    raw strings and should not have escaped newlines, backslashes, etc.
+    Returns an empty map on success"""</span>
+    orig <span class="token operator">=</span> <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">)</span><span class="token punctuation">.</span>read<span class="token punctuation">(</span><span class="token punctuation">)</span>
+    new <span class="token operator">=</span> orig<span class="token punctuation">.</span>replace<span class="token punctuation">(</span><span class="token keyword">match</span><span class="token punctuation">,</span> replace<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> new <span class="token operator">==</span> orig<span class="token punctuation">:</span> <span class="token keyword">raise</span> Exception<span class="token punctuation">(</span><span class="token string">"match string not found"</span><span class="token punctuation">)</span>
+    <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> <span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>new<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+<span class="token keyword">def</span> <span class="token function">create_file</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> content<span class="token punctuation">)</span><span class="token punctuation">:</span>
+    <span class="token triple-quoted-string string">"""Create (or replace) file at 'path' with 'content'.
+    'content' is a raw string and does not need extra escaping.
+    Returns an empty map on success"""</span>
+    <span class="token builtin">open</span><span class="token punctuation">(</span>path<span class="token punctuation">,</span> <span class="token string">"w"</span><span class="token punctuation">)</span><span class="token punctuation">.</span>write<span class="token punctuation">(</span>content<span class="token punctuation">)</span>
+    <span class="token keyword">return</span> <span class="token punctuation">{</span><span class="token punctuation">}</span>
+
+tools <span class="token operator">=</span> <span class="token punctuation">[</span>read_file<span class="token punctuation">,</span> ls_dir<span class="token punctuation">,</span> edit_file<span class="token punctuation">,</span> create_file<span class="token punctuation">]</span></code></pre>
+<p>Now let's use the new editing ability to make changes to a file:</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ echo 'hello NAME!' > greet.txt</em>
+
+<em>$ ./agent.py</em>
+user> <span style="color: plum">Change the greeting in the text file to use my first name.</span>
+assistant> I need a bit more information before proceeding. Could you please tell me the file name (or path) of the text file you want to change, and also provide your first name that should be used in the greeting?
+user> <span style="color: plum">My name is Joel. You find the file.</span>
+tool call> ls_dir({'path': '.'})
+tool result> {"stdout": "total 20\ndrwxrwxr-x  3 joelmartin joelmartin 4096 ...
+tool call> read_file({'path': 'greet.txt'})
+tool result> {"content": "hello NAME!\n"}
+tool call> edit_file({'match': 'NAME', 'path': 'greet.txt', 'replace': 'Joel'})
+tool result> {}
+assistant> I've updated greet.txt so that the greeting now reads "hello Joel!" Let me know if you need any further changes.</code></pre>
+<p>Note that sometimes the model will not ask the clarifying questions
+and will use the result of <code>ls_dir</code> to guess the first name based on
+directory/file ownership.</p>
+<h1 id="step-5-final-changes-and-a-sprinkle-of-inception">Step 5: Final changes (and a sprinkle of inception)</h1>
+<p>Those four simple tools/abilities (list files, read a file, edit
+a file, and create a file) are enough to give our agent the ability to
+do coding tasks. So let's use our agent itself to make some final
+improvements to its own code.</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ ./agent.py</em>
+user> <span style="color: plum">Copy agent.py to agent2.py where we will make changes. Use correct python indenting for all future changes.</span>
+tool call> read_file({'path': 'agent.py'})
+tool result> {"content": "#!/usr/bin/env python3\n\nimport llm\nDEFAULT_MODE...
+tool call> create_file({'content': '#!/usr/bin/env python3\n\nimport llm\nDE...
+tool result> {}
+assistant> agent2.py has been created with the same content as agent.py. Let me know what changes you'd like to make next.
+user> <span style="color: plum">Add a friendly startup message showing the model.</span>
+tool call> edit_file({'match': ')\n\nwhile True:', 'path': 'agent2.py', 'rep...
+tool result> {}
+assistant> I've inserted a friendly startup message that displays the model in agent2.py. Let me know if you need any other modifications.
+user> <span style="color: plum">For the three prints and the input call, colorize the part before the '>' using ASCII escape codes (red, green, blue, purple).</span>
+tool call> edit_file({'match': 'input("user> "', 'path': 'agent2.py', 'repla...
+tool result> {}
+tool call> edit_file({'match': 'tool call>', 'path': 'agent2.py', 'replace':...
+tool result> {}
+tool call> edit_file({'match': 'tool result>', 'path': 'agent2.py', 'replace...
+tool result> {}
+tool call> edit_file({'match': 'assistant>', 'path': 'agent2.py', 'replace':...
+tool result> {}
+assistant> I've updated agent2.py to colorize the parts before the '>' using the specified ASCII escape codes:
+- The input prompt now colors "user" in red,
+- The "tool call>" prefix is colored in green,
+- The "tool result>" prefix is colored in blue,
+- The "assistant>" prefix is colored in purple.
+
+Let me know if there are any further changes you'd like to apply!
+user> <span style="color: plum">Before calling a tool, confirm with the user. If confirmed continue as before, otherwise raise a llm.CancelToolCall exception with a "User Refused" message.</span>
+tool call> edit_file({'match': 'print(trunc(f"\\033[32mtool call\\033[0m> {t...
+tool result> {}
+assistant> I've updated the agent2.py before_call function to confirm with the user before calling a tool. The tool call will now prompt the user with "Proceed with tool call? (y/n)" and raise a llm.CancelToolCall exception if the user does not confirm.
+
+Let me know if additional modifications are needed!</code></pre>
+<p>Now review the code changes and then test our agent modified agent:</p>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ diff -urp agent.py agent2.py</em>
+...
+
+<em>$ chmod +x agent2.py</em>
+
+<em>$ ./agent2.py</em>
+Agent started with model: github_copilot/o3-mini
+<span style="color: red">user</span>> <span style="color: plum">What is in ./greet.txt?</span>
+<span style="color: green">tool call</span>> read_file({'path': './greet.txt'})
+Proceed with tool call? (y/n) <span style="color: plum">y</span>
+<span style="color: blue">tool result</span>> {"content": "hello Joel!\n"}
+<span style="color: purple">assistant</span>> The file contains: "hello Joel!" followed by a newline.</code></pre>
+<p>Notes:</p>
+<ul>
+<li>The full code for each of the steps can be found at <a href="https://github.com/kanaka/llm-agent">github.com/kanaka/llm-agent</a>.</li>
+</ul>
+<h1 id="step-6-you-take-it-from-here">Step 6: You take it from here!</h1>
+<p>You now have a basic working coding agent. The next steps are up to
+you. Here are some ideas:</p>
+<ul>
+<li>Add streaming output so that you can see the progress of the model
+as it is generating longer responses.</li>
+<li>Make the tool confirmation more sophisticated and allow specific
+actions or whole tools to be run without confirmation the next time.</li>
+<li>Add proper python argument parsing. Allow the model name, system
+prompt, tool confirmation mode, etc to be specified as command
+line. Allow the initial query to optionally be specified on the
+command line (like step 1).</li>
+<li>Give it the ability to run tests.</li>
+</ul>
+
+<ul class="links-nextprev"><li class="links-nextprev-prev">← Previous<br> <a href="/blog/litellm-agent-in-six-steps/">An LLM Coding Agent in 6 incremental steps and about 140 lines of python</a></li>
+</ul>
+
+			</heading-anchors>
+		</main>
+
+		<footer>
+			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
+		</footer>
+
+		<!-- This page `/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/` was built on 2025-06-12T23:27:42.559Z -->
+		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
+	</body>
+</html>
