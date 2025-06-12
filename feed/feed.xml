@@ -12,9 +12,9 @@
   </author>
   <entry>
     <title>A new LLM Coding Agent in 5 incremental steps and less than 80 lines of python</title>
-    <link href="https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/" />
+    <link href="https://example.com/blog/llm-agent-in-five-steps/" />
     <updated>2025-06-12T00:00:00Z</updated>
-    <id>https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/</id>
+    <id>https://example.com/blog/llm-agent-in-five-steps/</id>
     <content type="html">&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison&#39;s excellent &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; library. We will also use Github Copilot for access to LLM models which means all you need to get started is a github account (no LLM API sign-up/credit card required).&lt;/p&gt;
 &lt;p&gt;This is very similar to a previous previous post &lt;a href=&quot;https://example.com/blog/litellm-agent-in-six-steps/&quot;&gt;An LLM Coding Agent in 6 incremental steps and about 140 lines of python&lt;/a&gt;. The key difference is the use of &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.&lt;/p&gt;
 &lt;h1 id=&quot;step-0-prerequisites-uv-llm-etc&quot;&gt;Step 0: Prerequisites (uv, llm, etc)&lt;/h1&gt;
@@ -45,7 +45,7 @@ plugin that have sufficient tool calling support.&lt;/li&gt;
 &lt;li&gt;In the examples that follow, user input that is typed into the agent is shown with a &lt;span style=&quot;color: plum&quot;&gt;plum&lt;/span&gt; color.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1 id=&quot;step-1-single-api-call&quot;&gt;Step 1: Single API call&lt;/h1&gt;
-&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.avif 582w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.webp 582w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.png&quot; alt=&quot;Diagram of Step 1 - Single API call&quot; width=&quot;582&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/wmzkHP3yKq-582.avif 582w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/wmzkHP3yKq-582.webp 582w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/wmzkHP3yKq-582.png&quot; alt=&quot;Diagram of Step 1 - Single API call&quot; width=&quot;582&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
 &lt;p&gt;First, we are going to make a single API prompt call to our
 chosen LLM model and simply print the result. For this step, we will
 pass the first argument on the command line as the prompt that we want
@@ -83,7 +83,7 @@ to &lt;code&gt;github_copilot/gpt-4.1&lt;/code&gt; to get unlimited &lt;code&gt;
 &lt;li&gt;Refer to &lt;a href=&quot;https://llm.datasette.io/en/latest/python-api.html#basic-prompt-execution&quot;&gt;llm prompt API documentation&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1 id=&quot;step-2-chat-loop&quot;&gt;Step 2: Chat loop&lt;/h1&gt;
-&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.avif 582w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.webp 582w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.png&quot; alt=&quot;Diagram of Step 2 - Chat loop&quot; width=&quot;582&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/amOhG10w1s-582.avif 582w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/amOhG10w1s-582.webp 582w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/amOhG10w1s-582.png&quot; alt=&quot;Diagram of Step 2 - Chat loop&quot; width=&quot;582&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
 &lt;p&gt;Our current implementation makes a single query, prints the response,
 and then exits. We don&#39;t have a way to &amp;quot;chat&amp;quot; with the model. LLM
 models via their direct APIs are essentially stateless. The client
@@ -126,7 +126,7 @@ A correct answer confirms that the context (previous user and
 assistant messages) is being accumulated correctly, otherwise the
 assistant would be unable to answer the followup question.&lt;/p&gt;
 &lt;h1 id=&quot;step-3-tool-calling&quot;&gt;Step 3: Tool calling&lt;/h1&gt;
-&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.avif 741w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.webp 741w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.png&quot; alt=&quot;Diagram of Step 3 - Tool calling&quot; width=&quot;741&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/yaZiPSIGgT-741.avif 741w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/yaZiPSIGgT-741.webp 741w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/yaZiPSIGgT-741.png&quot; alt=&quot;Diagram of Step 3 - Tool calling&quot; width=&quot;741&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
 &lt;p&gt;Our &amp;quot;agent&amp;quot; does not have much agency; it can&#39;t do anything unless it
 can convince the user to act on it&#39;s behalf. If I ask &amp;quot;Show me what&#39;s
 in file ./README.md.&amp;quot;, the assistant will likely answer that it can&#39;t
@@ -182,7 +182,7 @@ import llm&lt;/code&gt;&lt;/pre&gt;
 &lt;li&gt;Refer to &lt;a href=&quot;https://llm.datasette.io/en/latest/python-api.html#conversations&quot;&gt;llm conversation API documentation&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1 id=&quot;step-4-file-editing-tools&quot;&gt;Step 4: File editing tools&lt;/h1&gt;
-&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.avif 741w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.webp 741w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.png&quot; alt=&quot;Diagram of Step 4 - file editing tools&quot; width=&quot;741&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
+&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/6-ViYEXYzE-741.avif 741w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/llm-agent-in-five-steps/6-ViYEXYzE-741.webp 741w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/llm-agent-in-five-steps/6-ViYEXYzE-741.png&quot; alt=&quot;Diagram of Step 4 - file editing tools&quot; width=&quot;741&quot; height=&quot;422&quot;&gt;&lt;/picture&gt;
 &lt;p&gt;Our agent has the ability to read files, now let&#39;s make the final
 small change that will turn it into a true coding agent. All that is
 need is a few more functions that give it the ability to list files,

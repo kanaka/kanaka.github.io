@@ -544,7 +544,7 @@ plugin that have sufficient tool calling support.</li>
 <li>In the examples that follow, user input that is typed into the agent is shown with a <span style="color: plum">plum</span> color.</li>
 </ul>
 <h1 id="step-1-single-api-call">Step 1: Single API call</h1>
-<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.avif 582w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.webp 582w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/wmzkHP3yKq-582.png" alt="Diagram of Step 1 - Single API call" width="582" height="422"></picture>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/wmzkHP3yKq-582.avif 582w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/wmzkHP3yKq-582.webp 582w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/wmzkHP3yKq-582.png" alt="Diagram of Step 1 - Single API call" width="582" height="422"></picture>
 <p>First, we are going to make a single API prompt call to our
 chosen LLM model and simply print the result. For this step, we will
 pass the first argument on the command line as the prompt that we want
@@ -582,7 +582,7 @@ to <code>github_copilot/gpt-4.1</code> to get unlimited <code>completion</code> 
 <li>Refer to <a href="https://llm.datasette.io/en/latest/python-api.html#basic-prompt-execution">llm prompt API documentation</a></li>
 </ul>
 <h1 id="step-2-chat-loop">Step 2: Chat loop</h1>
-<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.avif 582w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.webp 582w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/amOhG10w1s-582.png" alt="Diagram of Step 2 - Chat loop" width="582" height="422"></picture>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/amOhG10w1s-582.avif 582w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/amOhG10w1s-582.webp 582w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/amOhG10w1s-582.png" alt="Diagram of Step 2 - Chat loop" width="582" height="422"></picture>
 <p>Our current implementation makes a single query, prints the response,
 and then exits. We don't have a way to &quot;chat&quot; with the model. LLM
 models via their direct APIs are essentially stateless. The client
@@ -625,7 +625,7 @@ A correct answer confirms that the context (previous user and
 assistant messages) is being accumulated correctly, otherwise the
 assistant would be unable to answer the followup question.</p>
 <h1 id="step-3-tool-calling">Step 3: Tool calling</h1>
-<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.avif 741w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/yaZiPSIGgT-741.png" alt="Diagram of Step 3 - Tool calling" width="741" height="422"></picture>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/yaZiPSIGgT-741.avif 741w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/yaZiPSIGgT-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/yaZiPSIGgT-741.png" alt="Diagram of Step 3 - Tool calling" width="741" height="422"></picture>
 <p>Our &quot;agent&quot; does not have much agency; it can't do anything unless it
 can convince the user to act on it's behalf. If I ask &quot;Show me what's
 in file ./README.md.&quot;, the assistant will likely answer that it can't
@@ -681,7 +681,7 @@ import llm</code></pre>
 <li>Refer to <a href="https://llm.datasette.io/en/latest/python-api.html#conversations">llm conversation API documentation</a></li>
 </ul>
 <h1 id="step-4-file-editing-tools">Step 4: File editing tools</h1>
-<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.avif 741w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/6-ViYEXYzE-741.png" alt="Diagram of Step 4 - file editing tools" width="741" height="422"></picture>
+<picture><source type="image/avif" srcset="/blog/llm-agent-in-five-steps/6-ViYEXYzE-741.avif 741w"><source type="image/webp" srcset="/blog/llm-agent-in-five-steps/6-ViYEXYzE-741.webp 741w"><img loading="lazy" decoding="async" src="/blog/llm-agent-in-five-steps/6-ViYEXYzE-741.png" alt="Diagram of Step 4 - file editing tools" width="741" height="422"></picture>
 <p>Our agent has the ability to read files, now let's make the final
 small change that will turn it into a true coding agent. All that is
 need is a few more functions that give it the ability to list files,
@@ -811,7 +811,7 @@ command line (like step 1).</li>
 			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
 		</footer>
 
-		<!-- This page `/blog/llm-agent-in-five-steps/llm-agent-in-six-steps/` was built on 2025-06-12T23:27:42.559Z -->
+		<!-- This page `/blog/llm-agent-in-five-steps/` was built on 2025-06-12T23:32:28.580Z -->
 		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
 	</body>
 </html>
