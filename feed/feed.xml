@@ -309,6 +309,7 @@ command line (like step 1).&lt;/li&gt;
     <updated>2025-05-01T00:00:00Z</updated>
     <id>https://example.com/blog/litellm-agent-in-six-steps/</id>
     <content type="html">&lt;p&gt;&lt;strong&gt;[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;[Refer to &lt;a href=&quot;https://example.com/blog/llm-agent-in-five-steps&quot;&gt;LLM Agent in Five Steps&lt;/a&gt; for a shorter/simpler version of this tutorial that leverages the llm python module instead of LiteLLM]&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at &lt;a href=&quot;https://github.com/kanaka/litellm-agent&quot;&gt;github.com/kanaka/litellm-agent&lt;/a&gt;.&lt;/p&gt;
 &lt;h1 id=&quot;step-0-prerequisites-uv-litellm-etc&quot;&gt;Step 0: Prerequisites (uv, LiteLLM, etc)&lt;/h1&gt;
 &lt;p&gt;You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.&lt;/p&gt;
