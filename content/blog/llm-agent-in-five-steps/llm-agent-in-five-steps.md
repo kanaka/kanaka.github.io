@@ -5,7 +5,7 @@ date: 2025-06-12
 tags: ["LLM", "AI", "python", "software", "coding", "agent", "agents", "datasette", "API", "GitHub Copilot", "Github", "Copilot", "llm-github-copilot", "tool calling"]
 ---
 
-In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison's excellent [llm](https://github.com/simonw/llm) library. We will also use Github Copilot for access to LLM models which means all you need to get started is a github account (no LLM API sign-up/credit card required).
+In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison's [llm](https://github.com/simonw/llm) library and John Daly's [llm-github-copilot](https://github.com/jmdaly/llm-github-copilot) plugin. The plugin gives us access to LLM models via Github Copilot which means all you need to get started is a github account (no LLM API sign-up/credit card required).
 
 This is very similar to a previous previous post <a href="/blog/litellm-agent-in-six-steps/">An LLM Coding Agent in 6 incremental steps and about 140 lines of python</a>. The key difference is the use of [llm](https://github.com/simonw/llm) instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.
 
