@@ -45,8 +45,7 @@ code that you need to fill in at the provided github URL in order to
 authorize this client. Once you do this, API access token refreshes
 will happen automatically.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre&gt;&lt;code&gt;llm github_copilot auth login
-&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ llm github_copilot auth login&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
 &lt;p&gt;Notes:&lt;/p&gt;
 &lt;ul&gt;
