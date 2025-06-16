@@ -44,8 +44,8 @@ You will either need a Github account (to access Github Copilot) or you will nee
   authorize this client. Once you do this, API access token refreshes
   will happen automatically.
 
-```
-llm github_copilot auth login
+```text
+<em>$ llm github_copilot auth login</em>
 ```
 
 We are now ready to start the fun!
