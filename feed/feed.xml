@@ -15,7 +15,8 @@
     <link href="https://example.com/blog/llm-agent-in-five-steps/" />
     <updated>2025-06-12T00:00:00Z</updated>
     <id>https://example.com/blog/llm-agent-in-five-steps/</id>
-    <content type="html">&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison&#39;s &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; library and John Daly&#39;s &lt;a href=&quot;https://github.com/jmdaly/llm-github-copilot&quot;&gt;llm-github-copilot&lt;/a&gt; plugin. The plugin gives us access to LLM models via Github Copilot which means all you need to get started is a github account (no LLM API sign-up/credit card required).&lt;/p&gt;
+    <content type="html">&lt;p&gt;&lt;strong&gt;[Updated 2025-06-16: add Github Copilot authentication command to prerequisites]&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison&#39;s &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; library and John Daly&#39;s &lt;a href=&quot;https://github.com/jmdaly/llm-github-copilot&quot;&gt;llm-github-copilot&lt;/a&gt; plugin. The plugin gives us access to LLM models via Github Copilot which means all you need to get started is a github account (no LLM API sign-up/credit card required).&lt;/p&gt;
 &lt;p&gt;This is very similar to a previous previous post &lt;a href=&quot;https://example.com/blog/litellm-agent-in-six-steps/&quot;&gt;An LLM Coding Agent in 6 incremental steps and about 140 lines of python&lt;/a&gt;. The key difference is the use of &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.&lt;/p&gt;
 &lt;h1 id=&quot;step-0-prerequisites-uv-llm-etc&quot;&gt;Step 0: Prerequisites (uv, llm, etc)&lt;/h1&gt;
 &lt;p&gt;You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.&lt;/p&gt;
@@ -38,6 +39,14 @@ plugin that have sufficient tool calling support.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ uv pip install &quot;git+https://github.com/simonw/llm.git&quot;&lt;/em&gt;
 &lt;em&gt;$ uv pip install &quot;git+https://github.com/jmdaly/llm-github-copilot.git@refs/pull/18/head#egg=llm_github_copilot&quot;&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;ul&gt;
+&lt;li&gt;Authenticate with Github Copilot. You will be shown an 8 character
+code that you need to fill in at the provided github URL in order to
+authorize this client. Once you do this, API access token refreshes
+will happen automatically.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;pre&gt;&lt;code&gt;llm github_copilot auth login
+&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
 &lt;p&gt;Notes:&lt;/p&gt;
 &lt;ul&gt;
@@ -68,10 +77,6 @@ An agent is someone or something that acts on behalf of another person or entity
 message. We then print the response message from the LLM.&lt;/p&gt;
 &lt;p&gt;Notes:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;The first time you run your agent with a Github Copilot model, you
-will be shown an 8 character code that you need to fill in at the
-provided github URL in order to authorize this client. Once you do
-this, API access token refreshes will happen automatically.&lt;/li&gt;
 &lt;li&gt;With the Github Copilot free plan, you get 50 &amp;quot;&lt;a href=&quot;https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests&quot;&gt;premium requests&lt;/a&gt;&amp;quot; per
 month. The code above uses &amp;quot;&lt;code&gt;github_copilot/o3-mini&lt;/code&gt;&amp;quot; because it is
 currently the least expensive model with excellent coding ability
