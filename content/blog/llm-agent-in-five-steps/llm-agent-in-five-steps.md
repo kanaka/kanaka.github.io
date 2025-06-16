@@ -5,6 +5,8 @@ date: 2025-06-12
 tags: ["LLM", "AI", "python", "software", "coding", "agent", "agents", "datasette", "API", "GitHub Copilot", "Github", "Copilot", "llm-github-copilot", "tool calling"]
 ---
 
+**[Updated 2025-06-16: add Github Copilot authentication command to prerequisites]**
+
 In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison's [llm](https://github.com/simonw/llm) library and John Daly's [llm-github-copilot](https://github.com/jmdaly/llm-github-copilot) plugin. The plugin gives us access to LLM models via Github Copilot which means all you need to get started is a github account (no LLM API sign-up/credit card required).
 
 This is very similar to a previous previous post <a href="/blog/litellm-agent-in-six-steps/">An LLM Coding Agent in 6 incremental steps and about 140 lines of python</a>. The key difference is the use of [llm](https://github.com/simonw/llm) instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.
@@ -35,6 +37,15 @@ You will either need a Github account (to access Github Copilot) or you will nee
 ```text
 <em>$ uv pip install "git+https://github.com/simonw/llm.git"</em>
 <em>$ uv pip install "git+https://github.com/jmdaly/llm-github-copilot.git@refs/pull/18/head#egg=llm_github_copilot"</em>
+```
+
+* Authenticate with Github Copilot. You will be shown an 8 character
+  code that you need to fill in at the provided github URL in order to
+  authorize this client. Once you do this, API access token refreshes
+  will happen automatically.
+
+```
+llm github_copilot auth login
 ```
 
 We are now ready to start the fun!
@@ -77,10 +88,6 @@ We make a single call LLM model and provide it with a single "user"
 message. We then print the response message from the LLM.
 
 Notes:
-* The first time you run your agent with a Github Copilot model, you
-  will be shown an 8 character code that you need to fill in at the
-  provided github URL in order to authorize this client. Once you do
-  this, API access token refreshes will happen automatically.
 * With the Github Copilot free plan, you get 50 "<a href="https://docs.github.com/en/copilot/managing-copilot/monitoring-usage-and-entitlements/about-premium-requests">premium requests</a>" per
   month. The code above uses "`github_copilot/o3-mini`" because it is
   currently the least expensive model with excellent coding ability
