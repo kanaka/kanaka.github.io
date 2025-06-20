@@ -10,3 +10,27 @@ pre[class*="language-"] {
 .post-tag {
 	text-transform: unset;
 }
+
+.table-no-wrap table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+}
+
+.table-no-wrap table th,
+.table-no-wrap table td {
+  border: 1px solid #ccc;
+  padding: 0.5em 0.75em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table-no-wrap table thead {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.table-no-wrap table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
