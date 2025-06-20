@@ -5,9 +5,11 @@ date: 2025-05-01
 tags: ["LLM", "AI", "python", "software", "coding", "agent", "agents", "LiteLLM", "API", "GitHub Copilot", "Github", "Copilot"]
 ---
 
-**[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]**
-
 **[Refer to [LLM Agent in Five Steps](/blog/llm-agent-in-five-steps) for a shorter/simpler version of this tutorial that leverages the llm python module instead of LiteLLM]**
+
+**Updates**:
+  * **2025-05-06: more detail around tool calling and parameter inspection**
+  * **2025-06-20: simplify litellm dependency install.**
 
 In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.
 
@@ -30,13 +32,11 @@ You will either need a Github account (to access Github Copilot) or you will nee
 <em>$ source .venv/bin/activate</em>
 ```
 
-* Clone a branch of the LiteLLM project that has support for Github
-  Copilot models. Then install the local copy of LiteLLM and its
-  dependencies into the virtual environment:
+* Install a branch of the LiteLLM project (into the venv) that has
+  support for Github Copilot models.
 
 ```text
-<em>$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs</em>
-<em>$ uv pip install litellm/</em>
+<em>$ uv pip install git+https://github.com/BerriAI/litellm.git@litellm_dev_03_05_2025_contributor_prs</em>
 ```
 
 Note: in the examples that follow, user input that is typed into the agent is shown with a <span style="color: plum">plum</span> color.
