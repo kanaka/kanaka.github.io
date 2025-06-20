@@ -5,7 +5,9 @@ date: 2025-06-12
 tags: ["LLM", "AI", "python", "software", "coding", "agent", "agents", "datasette", "API", "GitHub Copilot", "Github", "Copilot", "llm-github-copilot", "tool calling"]
 ---
 
-**[Updated 2025-06-16: add Github Copilot authentication command to prerequisites]**
+**Updates**:
+  * **2025-06-16: add Github Copilot authentication command to prerequisites**
+  * **2025-06-20: example of output from Github Copilot device auth flow**
 
 In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison's [llm](https://github.com/simonw/llm) library and John Daly's [llm-github-copilot](https://github.com/jmdaly/llm-github-copilot) plugin. The plugin gives us access to LLM models via Github Copilot which means all you need to get started is a github account (no LLM API sign-up/credit card required).
 
@@ -46,6 +48,14 @@ You will either need a Github account (to access Github Copilot) or you will nee
 
 ```text
 <em>$ llm github_copilot auth login</em>
+Starting GitHub Copilot login process to obtain an access_token & API key...
+Fetching API key...
+
+Please visit https://github.com/login/device and enter code 1234-ABCD to authenticate GitHub Copilot.
+
+Waiting for authorization... (attempt 1/12)
+...
+Authentication successful!
 ```
 
 We are now ready to start the fun!
