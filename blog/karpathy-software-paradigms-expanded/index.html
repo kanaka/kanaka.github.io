@@ -1,0 +1,804 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<title>Karpathy&#39;s 3 Software Paradigms Expanded</title>
+		<meta name="description" content="Andrej Karpathy described 3 software paradigms in a talk he gave in June, 2025. In this post I expand these into a longer sequence">
+		<link rel="alternate" href="/feed/feed.xml" type="application/atom+xml" title="Joel Martin&#39;s Weblog">
+		
+		
+		
+		
+		<style>/* This is an arbitrary CSS string added to the bundle */
+/* Defaults */
+:root {
+	--font-family: -apple-system, system-ui, sans-serif;
+	--font-family-monospace: Consolas, Menlo, Monaco, Andale Mono WT, Andale Mono, Lucida Console, Lucida Sans Typewriter, DejaVu Sans Mono, Bitstream Vera Sans Mono, Liberation Mono, Nimbus Mono L, Courier New, Courier, monospace;
+}
+
+/* Theme colors */
+:root {
+	--color-gray-20: #e0e0e0;
+	--color-gray-50: #C0C0C0;
+	--color-gray-90: #333;
+
+	--background-color: #fff;
+
+	--text-color: var(--color-gray-90);
+	--text-color-link: #082840;
+	--text-color-link-active: #5f2b48;
+	--text-color-link-visited: #17050F;
+
+	--syntax-tab-size: 2;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-gray-20: #e0e0e0;
+		--color-gray-50: #C0C0C0;
+		--color-gray-90: #dad8d8;
+
+		/* --text-color is assigned to --color-gray-_ above */
+		--text-color-link: #1493fb;
+		--text-color-link-active: #6969f7;
+		--text-color-link-visited: #a6a6f8;
+
+		--background-color: #15202b;
+	}
+}
+
+
+/* Global stylesheet */
+* {
+	box-sizing: border-box;
+}
+
+@view-transition {
+	navigation: auto;
+}
+
+html,
+body {
+	padding: 0;
+	margin: 0 auto;
+	font-family: var(--font-family);
+	color: var(--text-color);
+	background-color: var(--background-color);
+}
+html {
+	overflow-y: scroll;
+}
+body {
+	max-width: 40em;
+}
+
+/* https://www.a11yproject.com/posts/how-to-hide-content/ */
+.visually-hidden {
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	height: 1px;
+	overflow: hidden;
+	position: absolute;
+	white-space: nowrap;
+	width: 1px;
+}
+
+/* Fluid images via https://www.zachleat.com/web/fluid-images/ */
+img{
+  max-width: 100%;
+}
+img[width][height] {
+  height: auto;
+}
+img[src$=".svg"] {
+  width: 100%;
+  height: auto;
+  max-width: none;
+}
+video,
+iframe {
+	width: 100%;
+	height: auto;
+}
+iframe {
+	aspect-ratio: 16/9;
+}
+
+p:last-child {
+	margin-bottom: 0;
+}
+p {
+	line-height: 1.5;
+}
+
+li {
+	line-height: 1.5;
+}
+
+a[href] {
+	color: var(--text-color-link);
+}
+a[href]:visited {
+	color: var(--text-color-link-visited);
+}
+a[href]:hover,
+a[href]:active {
+	color: var(--text-color-link-active);
+}
+
+main,
+footer {
+	padding: 1rem;
+}
+main :first-child {
+	margin-top: 0;
+}
+
+header {
+	border-bottom: 1px dashed var(--color-gray-20);
+}
+
+.links-nextprev {
+	display: flex;
+	justify-content: space-between;
+	gap: .5em 1em;
+	list-style: "";
+	border-top: 1px dashed var(--color-gray-20);
+	padding: 1em 0;
+}
+.links-nextprev > * {
+	flex-grow: 1;
+}
+.links-nextprev-next {
+	text-align: right;
+}
+
+table {
+	margin: 1em 0;
+}
+table td,
+table th {
+	padding-right: 1em;
+}
+
+pre,
+code {
+	font-family: var(--font-family-monospace);
+}
+pre:not([class*="language-"]) {
+	margin: .5em 0;
+	line-height: 1.375; /* 22px /16 */
+	-moz-tab-size: var(--syntax-tab-size);
+	-o-tab-size: var(--syntax-tab-size);
+	tab-size: var(--syntax-tab-size);
+	-webkit-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+	direction: ltr;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	overflow-x: auto;
+}
+code {
+	word-break: break-all;
+}
+
+/* Header */
+header {
+	display: flex;
+	gap: 1em;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1em;
+}
+.home-link {
+	flex-grow: 1;
+	font-size: 1em; /* 16px /16 */
+	font-weight: 700;
+}
+.home-link:link:not(:hover) {
+	text-decoration: none;
+}
+
+/* Nav */
+.nav {
+	display: flex;
+	gap: .5em 1em;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+}
+.nav-item {
+	display: inline-block;
+}
+.nav-item a[href]:not(:hover) {
+	text-decoration: none;
+}
+.nav a[href][aria-current="page"] {
+	text-decoration: underline;
+}
+
+/* Posts list */
+.postlist {
+	counter-reset: start-from var(--postlist-index);
+	list-style: none;
+	padding: 0;
+	padding-left: 1.5rem;
+}
+.postlist-item {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	counter-increment: start-from -1;
+	margin-bottom: 1em;
+}
+.postlist-item:before {
+	display: inline-block;
+	pointer-events: none;
+	content: "" counter(start-from, decimal-leading-zero) ". ";
+	line-height: 100%;
+	text-align: right;
+	margin-left: -1.5rem;
+}
+.postlist-date,
+.postlist-item:before {
+	font-size: 0.8125em; /* 13px /16 */
+	color: var(--color-gray-90);
+}
+.postlist-date {
+	word-spacing: -0.5px;
+}
+.postlist-link {
+	font-size: 1.1875em; /* 19px /16 */
+	font-weight: 700;
+	flex-basis: calc(100% - 1.5rem);
+	padding-left: .25em;
+	padding-right: .5em;
+	text-underline-position: from-font;
+	text-underline-offset: 0;
+	text-decoration-thickness: 1px;
+}
+.postlist-item-active .postlist-link {
+	font-weight: bold;
+}
+
+/* Tags */
+.post-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	text-transform: capitalize;
+	font-style: italic;
+}
+.postlist-item > .post-tag {
+	align-self: center;
+}
+
+/* Tags list */
+.post-metadata {
+	display: inline-flex;
+	flex-wrap: wrap;
+	gap: .5em;
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+.post-metadata time {
+	margin-right: 1em;
+}
+/* smaller code block font size. !important needed to override theme
+ * which inserts it's CSS late */
+code[class*="language-"],
+pre[class*="language-"] {
+  font-size: 0.80rem !important;          /* e.g. 14 px if body text is 16 px  */
+  line-height: 1.4 !important;
+}
+
+/* do not capitalize tags/labels */
+.post-tag {
+	text-transform: unset;
+}
+
+.table-no-wrap table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+}
+
+.table-no-wrap table th,
+.table-no-wrap table td {
+  border: 1px solid #ccc;
+  padding: 0.5em 0.75em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table-no-wrap table thead {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.table-no-wrap table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
+/**
+ * okaidia theme for JavaScript, CSS and HTML
+ * Loosely based on Monokai textmate theme by http://www.monokai.nl/
+ * @author ocodia
+ */
+
+code[class*="language-"],
+pre[class*="language-"] {
+	color: #f8f8f2;
+	background: none;
+	text-shadow: 0 1px rgba(0, 0, 0, 0.3);
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+	font-size: 1em;
+	text-align: left;
+	white-space: pre;
+	word-spacing: normal;
+	word-break: normal;
+	word-wrap: normal;
+	line-height: 1.5;
+
+	-moz-tab-size: 4;
+	-o-tab-size: 4;
+	tab-size: 4;
+
+	-webkit-hyphens: none;
+	-moz-hyphens: none;
+	-ms-hyphens: none;
+	hyphens: none;
+}
+
+/* Code blocks */
+pre[class*="language-"] {
+	padding: 1em;
+	margin: .5em 0;
+	overflow: auto;
+	border-radius: 0.3em;
+}
+
+:not(pre) > code[class*="language-"],
+pre[class*="language-"] {
+	background: #272822;
+}
+
+/* Inline code */
+:not(pre) > code[class*="language-"] {
+	padding: .1em;
+	border-radius: .3em;
+	white-space: normal;
+}
+
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+	color: #8292a2;
+}
+
+.token.punctuation {
+	color: #f8f8f2;
+}
+
+.token.namespace {
+	opacity: .7;
+}
+
+.token.property,
+.token.tag,
+.token.constant,
+.token.symbol,
+.token.deleted {
+	color: #f92672;
+}
+
+.token.boolean,
+.token.number {
+	color: #ae81ff;
+}
+
+.token.selector,
+.token.attr-name,
+.token.string,
+.token.char,
+.token.builtin,
+.token.inserted {
+	color: #a6e22e;
+}
+
+.token.operator,
+.token.entity,
+.token.url,
+.language-css .token.string,
+.style .token.string,
+.token.variable {
+	color: #f8f8f2;
+}
+
+.token.atrule,
+.token.attr-value,
+.token.function,
+.token.class-name {
+	color: #e6db74;
+}
+
+.token.keyword {
+	color: #66d9ef;
+}
+
+.token.regex,
+.token.important {
+	color: #fd971f;
+}
+
+.token.important,
+.token.bold {
+	font-weight: bold;
+}
+.token.italic {
+	font-style: italic;
+}
+
+.token.entity {
+	cursor: help;
+}
+/*
+ * New diff- syntax
+ */
+
+pre[class*="language-diff-"] {
+	--eleventy-code-padding: 1.25em;
+	padding-left: var(--eleventy-code-padding);
+	padding-right: var(--eleventy-code-padding);
+}
+.token.deleted {
+	background-color: hsl(0, 51%, 37%);
+	color: inherit;
+}
+.token.inserted {
+	background-color: hsl(126, 31%, 39%);
+	color: inherit;
+}
+
+/* Make the + and - characters unselectable for copy/paste */
+.token.prefix.unchanged,
+.token.prefix.inserted,
+.token.prefix.deleted {
+	-webkit-user-select: none;
+	user-select: none;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+.token.prefix.inserted,
+.token.prefix.deleted {
+	width: var(--eleventy-code-padding);
+	background-color: rgba(0,0,0,.2);
+}
+
+/* Optional: full-width background color */
+.token.inserted:not(.prefix),
+.token.deleted:not(.prefix) {
+	display: block;
+	margin-left: calc(-1 * var(--eleventy-code-padding));
+	margin-right: calc(-1 * var(--eleventy-code-padding));
+	text-decoration: none; /* override del, ins, mark defaults */
+	color: inherit; /* override del, ins, mark defaults */
+}</style>
+		
+	</head>
+	<body>
+		<a href="#skip" class="visually-hidden">Skip to main content</a>
+
+		<header>
+			<a href="/" class="home-link">Joel Martin&#39;s Weblog</a>
+			<nav>
+				<h2 class="visually-hidden" id="top-level-navigation-menu">Top level navigation menu</h2>
+				<ul class="nav">
+					<li class="nav-item"><a href="/">Home</a></li>
+					<li class="nav-item"><a href="/blog/">Archive</a></li>
+					<li class="nav-item"><a href="/about/">About</a></li>
+					<li class="nav-item"><a href="/feed/feed.xml">Feed</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<main id="skip">
+			<heading-anchors>
+				
+
+
+<h1 id="karpathys-3-software-paradigms-expanded">Karpathy&#39;s 3 Software Paradigms Expanded</h1>
+
+<ul class="post-metadata">
+	<li><time datetime="2025-06-20">20 June 2025</time></li>
+	<li><a href="/tags/llm/" class="post-tag">LLM</a>, </li>
+	<li><a href="/tags/llms/" class="post-tag">LLMs</a>, </li>
+	<li><a href="/tags/chatgpt/" class="post-tag">ChatGPT</a>, </li>
+	<li><a href="/tags/ai/" class="post-tag">AI</a>, </li>
+	<li><a href="/tags/software/" class="post-tag">software</a>, </li>
+	<li><a href="/tags/programming/" class="post-tag">programming</a>, </li>
+	<li><a href="/tags/coding/" class="post-tag">coding</a>, </li>
+	<li><a href="/tags/system-prompting/" class="post-tag">system prompting</a>, </li>
+	<li><a href="/tags/machine-learning/" class="post-tag">machine learning</a>, </li>
+	<li><a href="/tags/neural-networks/" class="post-tag">neural networks</a>, </li>
+	<li><a href="/tags/compiled/" class="post-tag">compiled</a>, </li>
+	<li><a href="/tags/dynamic/" class="post-tag">dynamic</a>, </li>
+	<li><a href="/tags/scripting/" class="post-tag">scripting</a>, </li>
+	<li><a href="/tags/paradigms/" class="post-tag">paradigms</a>, </li>
+	<li><a href="/tags/andrej-karpathy/" class="post-tag">Andrej Karpathy</a>, </li>
+	<li><a href="/tags/karpathy/" class="post-tag">Karpathy</a></li>
+</ul>
+
+<p>In June of 2025, Andrej Karpathy gave a talk at YC's AI Startup School
+titled <a href="https://www.youtube.com/watch?v=LCEmiRjPEtQ">&quot;Software is Changing
+(Again)&quot;</a> where he
+introduced three major software paradigms:</p>
+<p><picture><source type="image/avif" srcset="/blog/karpathy-software-paradigms-expanded/RcZM3R9oKr-3448.avif 3448w"><source type="image/webp" srcset="/blog/karpathy-software-paradigms-expanded/RcZM3R9oKr-3448.webp 3448w"><img loading="lazy" decoding="async" src="/blog/karpathy-software-paradigms-expanded/RcZM3R9oKr-3448.png" alt="Karpathy's Three Software Paradigms" width="3448" height="1840"></picture></p>
+<p>To reiterate the categories:</p>
+<ul>
+<li>Software 1.0 - code</li>
+<li>Software 2.0 - weights</li>
+<li>Software 3.0 - prompts</li>
+</ul>
+<p>This is a thought provoking way to think about the recent paradigms of
+software creation. I wanted to expand on the Software 1.0 because that
+category encapsulates a number of paradigm shifts that have happened
+in the software space.</p>
+<h2 id="software-paradigms-expanded">Software Paradigms Expanded</h2>
+<div class="table-no-wrap">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Paradigm</th>
+<th>Start (≈)</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>Hard-wired logic</td>
+<td>1930s</td>
+<td>Programs built by physically wiring circuits; fast execution, no flexibility</td>
+</tr>
+<tr>
+<td>1a</td>
+<td>Low-level symbolic code</td>
+<td>1946</td>
+<td>Programs written in numeric opcodes or assembly; error-prone but foundational</td>
+</tr>
+<tr>
+<td>1b</td>
+<td>Compiled procedural</td>
+<td>1957</td>
+<td>Code written in high-level languages like Fortran and C; compiled to machine code</td>
+</tr>
+<tr>
+<td>1c</td>
+<td>Managed and dynamic</td>
+<td>1984</td>
+<td>Code runs in VMs or interpreters; safe, high-level languages like Java, Python</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Neural networks</td>
+<td>2012</td>
+<td>Software learned from data via training; great for vision/language, opaque logic</td>
+</tr>
+<tr>
+<td>3</td>
+<td>LLMs, reasoning, agents</td>
+<td>2022</td>
+<td>Natural language prompts create code or plans; tools and reasoning extend capabilities</td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul>
+<li><em>Software 0</em>: There was no general notion of &quot;software&quot; as
+a distinct entity or activity from hardware. The initial theory of
+software would be developed in 1935 by Alan Turing. The term
+&quot;software&quot; was coined by John Tukey in 1958 which is well after we
+started creating &quot;software&quot; (programming). And it should be
+mentioned that the first software was created by Ada Lovelace in
+1843 for Babbage's Analytical Engine.</li>
+<li><em>Software 1a</em>: Software exists but is basically a direct mapping to
+the machine code instructions that the processor executes. No
+conceptual abstraction from the steps the computer is performing.</li>
+<li><em>Software 1b</em>: Higher level languages that are translated or
+compiled to machine code and then executed. Introduces higher-level
+abstractions like functions and data types, letting programmers
+describe algorithms without managing individual instructions or
+memory directly.</li>
+<li><em>Software 1c</em>: Software languages and tools now abstract the runtime
+environment itself using managed memory, dynamic typing, reflection,
+and interpreters. Code is no longer a static set of instructions but
+a flexible, evolving system that can inspect, modify, and extend
+itself while running.</li>
+</ul>
+<h2 id="software-paradigms-expanded-again">Software Paradigms Expanded (Again)</h2>
+<p>The above table is a useful, but I also want to see finer granularity.
+So let's expand all three paradigm groups:</p>
+<div class="table-no-wrap">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Paradigm</th>
+<th>Start (≈)</th>
+<th>Key innovations</th>
+<th>Typical tech / tools</th>
+<th>What “programming” looks like</th>
+<th>Human role</th>
+<th>Notes &amp; trade-offs</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.0</td>
+<td>Hard-wired logic</td>
+<td>1930s</td>
+<td>Logic encoded in wiring &amp; relays</td>
+<td>IBM accounting machines, ENIAC plug-boards</td>
+<td>Re-patch cables, flip switches, resolder boards</td>
+<td>Electrical technician</td>
+<td>Fast once wired; change = physical labour; no “stored” software</td>
+</tr>
+<tr>
+<td>1.0</td>
+<td>Machine-code</td>
+<td>1946</td>
+<td>Stored-program computer + numeric op-codes</td>
+<td>IBM 701 punched cards, EDSAC paper tape</td>
+<td>Hand-encode op-codes; feed decks/tape</td>
+<td>Coder / calculator</td>
+<td>First real software; opaque &amp; error-prone; debugging = re-punch</td>
+</tr>
+<tr>
+<td>1.1</td>
+<td>Assembly language</td>
+<td>1950</td>
+<td>Mnemonics, labels, macros</td>
+<td>Autocoder, MASM, NASM</td>
+<td>One line per instruction; think in registers &amp; jumps</td>
+<td>System programmer</td>
+<td>Easier than raw op-codes, still non-portable &amp; low-level</td>
+</tr>
+<tr>
+<td>1.2</td>
+<td>Compiled procedural</td>
+<td>1957</td>
+<td>Compilers translate algebraic languages</td>
+<td>Fortran, Algol, C, Pascal, COBOL</td>
+<td>Describe algorithms; compiler handles optimisation</td>
+<td>Software engineer</td>
+<td>Portable &amp; efficient; manual memory, explicit control flow</td>
+</tr>
+<tr>
+<td>1.3</td>
+<td>Symbolic / functional</td>
+<td>1958</td>
+<td>REPL, garbage collection, code-as-data macros</td>
+<td>Lisp, Scheme, early Smalltalk</td>
+<td>Type at a prompt; meta-program; treat code as data</td>
+<td>Researcher / rapid-prototyper</td>
+<td>Pioneered GC &amp; FP; concept-rich, slow on early HW</td>
+</tr>
+<tr>
+<td>1.4</td>
+<td>Managed object-oriented</td>
+<td>1984</td>
+<td>Virtual machines, JITs, static typing + GC</td>
+<td>Java/JVM, C#, CLR</td>
+<td>Class hierarchies; runtime hides memory</td>
+<td>Application developer</td>
+<td>Safety &amp; tooling at scale; some perf overhead</td>
+</tr>
+<tr>
+<td>1.5</td>
+<td>Dynamic scripting</td>
+<td>1991</td>
+<td>Interpreters + batteries-included libs &amp; REPLs</td>
+<td>Python, JavaScript, Ruby, Perl, Bash</td>
+<td>Write glue code quickly; duck-typing</td>
+<td>Scripter / web dev</td>
+<td>Rapid iteration; late error detection; slower runtime</td>
+</tr>
+<tr>
+<td>2.0</td>
+<td>Deep perception nets</td>
+<td>2012</td>
+<td>GPU-accelerated gradient descent for vision</td>
+<td>CNNs, ImageNet, TensorFlow 1.x</td>
+<td>Define architecture + dataset; training learns weights</td>
+<td>ML engineer</td>
+<td>Excels at perception; data/compute hungry; opaque logic</td>
+</tr>
+<tr>
+<td>2.1</td>
+<td>Sequence &amp; attention models</td>
+<td>2014</td>
+<td>RNNs, LSTMs, attention for language &amp; time</td>
+<td>seq2seq, Bahdanau attention, early Torch</td>
+<td>Encode/dec sequence; training handles long context</td>
+<td>NLP engineer</td>
+<td>Better for language; still brittle, limited context</td>
+</tr>
+<tr>
+<td>2.2</td>
+<td>Self-supervised models</td>
+<td>2017</td>
+<td>Transformers &amp; massive pre-training</td>
+<td>Transformer, BERT, GPT-2/3 pre-2022</td>
+<td>Pre-train on web data; fine-tune downstream</td>
+<td>Foundation-model engineer</td>
+<td>Broad knowledge; zero-shot transfer; huge training cost</td>
+</tr>
+<tr>
+<td>3.0</td>
+<td>LLM chat</td>
+<td>2022</td>
+<td>Conversational text &amp; code gen, reasoning</td>
+<td>ChatGPT, Claude, Gemini, Deepseek</td>
+<td>Conversation, copy/paste code &amp; errors</td>
+<td>Prompt engineer</td>
+<td>Great for synthesis &amp; translation; needs validation</td>
+</tr>
+<tr>
+<td>3.1</td>
+<td>LLM agents</td>
+<td>2025</td>
+<td>Autonomous tool use &amp; multi-step planning</td>
+<td>Devin, Claude Code, Codex, Github Copilot</td>
+<td>Write instructions, review results, iterate</td>
+<td>Context engineer</td>
+<td>Delegates work; must sandbox &amp; supervise for safety</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The numbering has gotten a bit unwieldly, but I decided to keep it
+this way so that it keeps a direct connection to Karpathy's numbering.</p>
+<p>A few thoughts on this table:</p>
+<ul>
+<li><em>Software 2.*</em>: These paradigms were foundational for what was to
+come but for a number of reasons these had much narrower adoption in
+the software industry than what came before and what has come after.</li>
+<li><em>Software 3.1</em>: Agentic LLMs feels like an entirely different mode
+of developing software that is worthy of it's own paradigm.</li>
+<li>I originally had a separate &quot;LLM reasoning&quot; row but I realized this
+was really just an improvement to the &quot;LLM Chat&quot; paradigm because it
+doesn't change the fundamental mode of programming or the human role
+so I combined it into &quot;LLM Chat&quot;.</li>
+</ul>
+<h2 id="note">Note</h2>
+<p>I worked with ChatGPT (o3 and 4o) to populate and refine the tables
+above (and double checked and refined using wikipedia). The rest of
+the text was written by hand with some brainstorming and review by
+ChatGPT 4o.</p>
+
+<ul class="links-nextprev"><li class="links-nextprev-prev">← Previous<br> <a href="/blog/llm-agent-in-five-steps/">A new LLM Coding Agent in 5 incremental steps and less than 80 lines of python</a></li>
+</ul>
+
+			</heading-anchors>
+		</main>
+
+		<footer>
+			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
+		</footer>
+
+		<!-- This page `/blog/karpathy-software-paradigms-expanded/` was built on 2025-06-20T21:11:03.814Z -->
+		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
+	</body>
+</html>

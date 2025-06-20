@@ -302,6 +302,30 @@ pre[class*="language-"] {
 .post-tag {
 	text-transform: unset;
 }
+
+.table-no-wrap table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.95em;
+  border: 1px solid #ccc;
+}
+
+.table-no-wrap table th,
+.table-no-wrap table td {
+  border: 1px solid #ccc;
+  padding: 0.5em 0.75em;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.table-no-wrap table thead {
+  background-color: #f4f4f4;
+  font-weight: bold;
+}
+
+.table-no-wrap table tbody tr:nth-child(even) {
+  background-color: #fafafa;
+}
 /**
  * okaidia theme for JavaScript, CSS and HTML
  * Loosely based on Monokai textmate theme by http://www.monokai.nl/
@@ -511,8 +535,12 @@ pre[class*="language-diff-"] {
 	<li><a href="/tags/copilot/" class="post-tag">Copilot</a></li>
 </ul>
 
-<p><strong>[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]</strong></p>
 <p><strong>[Refer to <a href="/blog/llm-agent-in-five-steps">LLM Agent in Five Steps</a> for a shorter/simpler version of this tutorial that leverages the llm python module instead of LiteLLM]</strong></p>
+<p><strong>Updates</strong>:</p>
+<ul>
+<li><strong>2025-05-06: more detail around tool calling and parameter inspection</strong></li>
+<li><strong>2025-06-20: simplify litellm dependency install.</strong></li>
+</ul>
 <p>In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at <a href="https://github.com/kanaka/litellm-agent">github.com/kanaka/litellm-agent</a>.</p>
 <h1 id="step-0-prerequisites-uv-litellm-etc">Step 0: Prerequisites (uv, LiteLLM, etc)</h1>
 <p>You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.</p>
@@ -529,12 +557,10 @@ environment:</li>
 <em>$ uv venv</em>
 <em>$ source .venv/bin/activate</em></code></pre>
 <ul>
-<li>Clone a branch of the LiteLLM project that has support for Github
-Copilot models. Then install the local copy of LiteLLM and its
-dependencies into the virtual environment:</li>
+<li>Install a branch of the LiteLLM project (into the venv) that has
+support for Github Copilot models.</li>
 </ul>
-<pre class="language-text" tabindex="0"><code class="language-text"><em>$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs</em>
-<em>$ uv pip install litellm/</em></code></pre>
+<pre class="language-text" tabindex="0"><code class="language-text"><em>$ uv pip install git+https://github.com/BerriAI/litellm.git@litellm_dev_03_05_2025_contributor_prs</em></code></pre>
 <p>Note: in the examples that follow, user input that is typed into the agent is shown with a <span style="color: plum">plum</span> color.</p>
 <p>We are now ready to start the fun!</p>
 <h1 id="step-1-single-api-call">Step 1: Single API call</h1>
@@ -919,7 +945,7 @@ has trouble using the tools the way they are currently defined.</li>
 			<p><em>Built with <a href="https://www.11ty.dev/">Eleventy v3.1.0</a></em></p>
 		</footer>
 
-		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-06-16T14:56:01.541Z -->
+		<!-- This page `/blog/litellm-agent-in-six-steps/` was built on 2025-06-20T21:11:03.814Z -->
 		<script type="module" src="/dist/xbxy_EL6cU.js"></script>
 	</body>
 </html>

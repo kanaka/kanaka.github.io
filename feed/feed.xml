@@ -5,17 +5,276 @@
   <subtitle>This is a longer description about your blog.</subtitle>
   <link href="https://example.com/feed/feed.xml" rel="self" />
   <link href="https://example.com/" />
-  <updated>2025-06-12T00:00:00Z</updated>
+  <updated>2025-06-20T00:00:00Z</updated>
   <id>https://example.com/</id>
   <author>
     <name>Your Name</name>
   </author>
   <entry>
+    <title>Karpathy&#39;s 3 Software Paradigms Expanded</title>
+    <link href="https://example.com/blog/karpathy-software-paradigms-expanded/" />
+    <updated>2025-06-20T00:00:00Z</updated>
+    <id>https://example.com/blog/karpathy-software-paradigms-expanded/</id>
+    <content type="html">&lt;p&gt;In June of 2025, Andrej Karpathy gave a talk at YC&#39;s AI Startup School
+titled &lt;a href=&quot;https://www.youtube.com/watch?v=LCEmiRjPEtQ&quot;&gt;&amp;quot;Software is Changing
+(Again)&amp;quot;&lt;/a&gt; where he
+introduced three major software paradigms:&lt;/p&gt;
+&lt;p&gt;&lt;picture&gt;&lt;source type=&quot;image/avif&quot; srcset=&quot;https://example.com/blog/karpathy-software-paradigms-expanded/RcZM3R9oKr-3448.avif 3448w&quot;&gt;&lt;source type=&quot;image/webp&quot; srcset=&quot;https://example.com/blog/karpathy-software-paradigms-expanded/RcZM3R9oKr-3448.webp 3448w&quot;&gt;&lt;img loading=&quot;lazy&quot; decoding=&quot;async&quot; src=&quot;https://example.com/blog/karpathy-software-paradigms-expanded/RcZM3R9oKr-3448.png&quot; alt=&quot;Karpathy&#39;s Three Software Paradigms&quot; width=&quot;3448&quot; height=&quot;1840&quot;&gt;&lt;/picture&gt;&lt;/p&gt;
+&lt;p&gt;To reiterate the categories:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Software 1.0 - code&lt;/li&gt;
+&lt;li&gt;Software 2.0 - weights&lt;/li&gt;
+&lt;li&gt;Software 3.0 - prompts&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This is a thought provoking way to think about the recent paradigms of
+software creation. I wanted to expand on the Software 1.0 because that
+category encapsulates a number of paradigm shifts that have happened
+in the software space.&lt;/p&gt;
+&lt;h2 id=&quot;software-paradigms-expanded&quot;&gt;Software Paradigms Expanded&lt;/h2&gt;
+&lt;div class=&quot;table-no-wrap&quot;&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Paradigm&lt;/th&gt;
+&lt;th&gt;Start (≈)&lt;/th&gt;
+&lt;th&gt;Description&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;Hard-wired logic&lt;/td&gt;
+&lt;td&gt;1930s&lt;/td&gt;
+&lt;td&gt;Programs built by physically wiring circuits; fast execution, no flexibility&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1a&lt;/td&gt;
+&lt;td&gt;Low-level symbolic code&lt;/td&gt;
+&lt;td&gt;1946&lt;/td&gt;
+&lt;td&gt;Programs written in numeric opcodes or assembly; error-prone but foundational&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1b&lt;/td&gt;
+&lt;td&gt;Compiled procedural&lt;/td&gt;
+&lt;td&gt;1957&lt;/td&gt;
+&lt;td&gt;Code written in high-level languages like Fortran and C; compiled to machine code&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1c&lt;/td&gt;
+&lt;td&gt;Managed and dynamic&lt;/td&gt;
+&lt;td&gt;1984&lt;/td&gt;
+&lt;td&gt;Code runs in VMs or interpreters; safe, high-level languages like Java, Python&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2&lt;/td&gt;
+&lt;td&gt;Neural networks&lt;/td&gt;
+&lt;td&gt;2012&lt;/td&gt;
+&lt;td&gt;Software learned from data via training; great for vision/language, opaque logic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3&lt;/td&gt;
+&lt;td&gt;LLMs, reasoning, agents&lt;/td&gt;
+&lt;td&gt;2022&lt;/td&gt;
+&lt;td&gt;Natural language prompts create code or plans; tools and reasoning extend capabilities&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Software 0&lt;/em&gt;: There was no general notion of &amp;quot;software&amp;quot; as
+a distinct entity or activity from hardware. The initial theory of
+software would be developed in 1935 by Alan Turing. The term
+&amp;quot;software&amp;quot; was coined by John Tukey in 1958 which is well after we
+started creating &amp;quot;software&amp;quot; (programming). And it should be
+mentioned that the first software was created by Ada Lovelace in
+1843 for Babbage&#39;s Analytical Engine.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Software 1a&lt;/em&gt;: Software exists but is basically a direct mapping to
+the machine code instructions that the processor executes. No
+conceptual abstraction from the steps the computer is performing.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Software 1b&lt;/em&gt;: Higher level languages that are translated or
+compiled to machine code and then executed. Introduces higher-level
+abstractions like functions and data types, letting programmers
+describe algorithms without managing individual instructions or
+memory directly.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Software 1c&lt;/em&gt;: Software languages and tools now abstract the runtime
+environment itself using managed memory, dynamic typing, reflection,
+and interpreters. Code is no longer a static set of instructions but
+a flexible, evolving system that can inspect, modify, and extend
+itself while running.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;software-paradigms-expanded-again&quot;&gt;Software Paradigms Expanded (Again)&lt;/h2&gt;
+&lt;p&gt;The above table is a useful, but I also want to see finer granularity.
+So let&#39;s expand all three paradigm groups:&lt;/p&gt;
+&lt;div class=&quot;table-no-wrap&quot;&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;&lt;/th&gt;
+&lt;th&gt;Paradigm&lt;/th&gt;
+&lt;th&gt;Start (≈)&lt;/th&gt;
+&lt;th&gt;Key innovations&lt;/th&gt;
+&lt;th&gt;Typical tech / tools&lt;/th&gt;
+&lt;th&gt;What “programming” looks like&lt;/th&gt;
+&lt;th&gt;Human role&lt;/th&gt;
+&lt;th&gt;Notes &amp;amp; trade-offs&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;0.0&lt;/td&gt;
+&lt;td&gt;Hard-wired logic&lt;/td&gt;
+&lt;td&gt;1930s&lt;/td&gt;
+&lt;td&gt;Logic encoded in wiring &amp;amp; relays&lt;/td&gt;
+&lt;td&gt;IBM accounting machines, ENIAC plug-boards&lt;/td&gt;
+&lt;td&gt;Re-patch cables, flip switches, resolder boards&lt;/td&gt;
+&lt;td&gt;Electrical technician&lt;/td&gt;
+&lt;td&gt;Fast once wired; change = physical labour; no “stored” software&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1.0&lt;/td&gt;
+&lt;td&gt;Machine-code&lt;/td&gt;
+&lt;td&gt;1946&lt;/td&gt;
+&lt;td&gt;Stored-program computer + numeric op-codes&lt;/td&gt;
+&lt;td&gt;IBM 701 punched cards, EDSAC paper tape&lt;/td&gt;
+&lt;td&gt;Hand-encode op-codes; feed decks/tape&lt;/td&gt;
+&lt;td&gt;Coder / calculator&lt;/td&gt;
+&lt;td&gt;First real software; opaque &amp;amp; error-prone; debugging = re-punch&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1.1&lt;/td&gt;
+&lt;td&gt;Assembly language&lt;/td&gt;
+&lt;td&gt;1950&lt;/td&gt;
+&lt;td&gt;Mnemonics, labels, macros&lt;/td&gt;
+&lt;td&gt;Autocoder, MASM, NASM&lt;/td&gt;
+&lt;td&gt;One line per instruction; think in registers &amp;amp; jumps&lt;/td&gt;
+&lt;td&gt;System programmer&lt;/td&gt;
+&lt;td&gt;Easier than raw op-codes, still non-portable &amp;amp; low-level&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1.2&lt;/td&gt;
+&lt;td&gt;Compiled procedural&lt;/td&gt;
+&lt;td&gt;1957&lt;/td&gt;
+&lt;td&gt;Compilers translate algebraic languages&lt;/td&gt;
+&lt;td&gt;Fortran, Algol, C, Pascal, COBOL&lt;/td&gt;
+&lt;td&gt;Describe algorithms; compiler handles optimisation&lt;/td&gt;
+&lt;td&gt;Software engineer&lt;/td&gt;
+&lt;td&gt;Portable &amp;amp; efficient; manual memory, explicit control flow&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1.3&lt;/td&gt;
+&lt;td&gt;Symbolic / functional&lt;/td&gt;
+&lt;td&gt;1958&lt;/td&gt;
+&lt;td&gt;REPL, garbage collection, code-as-data macros&lt;/td&gt;
+&lt;td&gt;Lisp, Scheme, early Smalltalk&lt;/td&gt;
+&lt;td&gt;Type at a prompt; meta-program; treat code as data&lt;/td&gt;
+&lt;td&gt;Researcher / rapid-prototyper&lt;/td&gt;
+&lt;td&gt;Pioneered GC &amp;amp; FP; concept-rich, slow on early HW&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1.4&lt;/td&gt;
+&lt;td&gt;Managed object-oriented&lt;/td&gt;
+&lt;td&gt;1984&lt;/td&gt;
+&lt;td&gt;Virtual machines, JITs, static typing + GC&lt;/td&gt;
+&lt;td&gt;Java/JVM, C#, CLR&lt;/td&gt;
+&lt;td&gt;Class hierarchies; runtime hides memory&lt;/td&gt;
+&lt;td&gt;Application developer&lt;/td&gt;
+&lt;td&gt;Safety &amp;amp; tooling at scale; some perf overhead&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;1.5&lt;/td&gt;
+&lt;td&gt;Dynamic scripting&lt;/td&gt;
+&lt;td&gt;1991&lt;/td&gt;
+&lt;td&gt;Interpreters + batteries-included libs &amp;amp; REPLs&lt;/td&gt;
+&lt;td&gt;Python, JavaScript, Ruby, Perl, Bash&lt;/td&gt;
+&lt;td&gt;Write glue code quickly; duck-typing&lt;/td&gt;
+&lt;td&gt;Scripter / web dev&lt;/td&gt;
+&lt;td&gt;Rapid iteration; late error detection; slower runtime&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2.0&lt;/td&gt;
+&lt;td&gt;Deep perception nets&lt;/td&gt;
+&lt;td&gt;2012&lt;/td&gt;
+&lt;td&gt;GPU-accelerated gradient descent for vision&lt;/td&gt;
+&lt;td&gt;CNNs, ImageNet, TensorFlow 1.x&lt;/td&gt;
+&lt;td&gt;Define architecture + dataset; training learns weights&lt;/td&gt;
+&lt;td&gt;ML engineer&lt;/td&gt;
+&lt;td&gt;Excels at perception; data/compute hungry; opaque logic&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2.1&lt;/td&gt;
+&lt;td&gt;Sequence &amp;amp; attention models&lt;/td&gt;
+&lt;td&gt;2014&lt;/td&gt;
+&lt;td&gt;RNNs, LSTMs, attention for language &amp;amp; time&lt;/td&gt;
+&lt;td&gt;seq2seq, Bahdanau attention, early Torch&lt;/td&gt;
+&lt;td&gt;Encode/dec sequence; training handles long context&lt;/td&gt;
+&lt;td&gt;NLP engineer&lt;/td&gt;
+&lt;td&gt;Better for language; still brittle, limited context&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;2.2&lt;/td&gt;
+&lt;td&gt;Self-supervised models&lt;/td&gt;
+&lt;td&gt;2017&lt;/td&gt;
+&lt;td&gt;Transformers &amp;amp; massive pre-training&lt;/td&gt;
+&lt;td&gt;Transformer, BERT, GPT-2/3 pre-2022&lt;/td&gt;
+&lt;td&gt;Pre-train on web data; fine-tune downstream&lt;/td&gt;
+&lt;td&gt;Foundation-model engineer&lt;/td&gt;
+&lt;td&gt;Broad knowledge; zero-shot transfer; huge training cost&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3.0&lt;/td&gt;
+&lt;td&gt;LLM chat&lt;/td&gt;
+&lt;td&gt;2022&lt;/td&gt;
+&lt;td&gt;Conversational text &amp;amp; code gen, reasoning&lt;/td&gt;
+&lt;td&gt;ChatGPT, Claude, Gemini, Deepseek&lt;/td&gt;
+&lt;td&gt;Conversation, copy/paste code &amp;amp; errors&lt;/td&gt;
+&lt;td&gt;Prompt engineer&lt;/td&gt;
+&lt;td&gt;Great for synthesis &amp;amp; translation; needs validation&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;3.1&lt;/td&gt;
+&lt;td&gt;LLM agents&lt;/td&gt;
+&lt;td&gt;2025&lt;/td&gt;
+&lt;td&gt;Autonomous tool use &amp;amp; multi-step planning&lt;/td&gt;
+&lt;td&gt;Devin, Claude Code, Codex, Github Copilot&lt;/td&gt;
+&lt;td&gt;Write instructions, review results, iterate&lt;/td&gt;
+&lt;td&gt;Context engineer&lt;/td&gt;
+&lt;td&gt;Delegates work; must sandbox &amp;amp; supervise for safety&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;/div&gt;
+&lt;p&gt;The numbering has gotten a bit unwieldly, but I decided to keep it
+this way so that it keeps a direct connection to Karpathy&#39;s numbering.&lt;/p&gt;
+&lt;p&gt;A few thoughts on this table:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;em&gt;Software 2.*&lt;/em&gt;: These paradigms were foundational for what was to
+come but for a number of reasons these had much narrower adoption in
+the software industry than what came before and what has come after.&lt;/li&gt;
+&lt;li&gt;&lt;em&gt;Software 3.1&lt;/em&gt;: Agentic LLMs feels like an entirely different mode
+of developing software that is worthy of it&#39;s own paradigm.&lt;/li&gt;
+&lt;li&gt;I originally had a separate &amp;quot;LLM reasoning&amp;quot; row but I realized this
+was really just an improvement to the &amp;quot;LLM Chat&amp;quot; paradigm because it
+doesn&#39;t change the fundamental mode of programming or the human role
+so I combined it into &amp;quot;LLM Chat&amp;quot;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&quot;note&quot;&gt;Note&lt;/h2&gt;
+&lt;p&gt;I worked with ChatGPT (o3 and 4o) to populate and refine the tables
+above (and double checked and refined using wikipedia). The rest of
+the text was written by hand with some brainstorming and review by
+ChatGPT 4o.&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
     <title>A new LLM Coding Agent in 5 incremental steps and less than 80 lines of python</title>
     <link href="https://example.com/blog/llm-agent-in-five-steps/" />
     <updated>2025-06-12T00:00:00Z</updated>
     <id>https://example.com/blog/llm-agent-in-five-steps/</id>
-    <content type="html">&lt;p&gt;&lt;strong&gt;[Updated 2025-06-16: add Github Copilot authentication command to prerequisites]&lt;/strong&gt;&lt;/p&gt;
+    <content type="html">&lt;p&gt;&lt;strong&gt;Updates&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;2025-06-16: add Github Copilot authentication command to prerequisites&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;2025-06-20: example of output from Github Copilot device auth flow&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;In this post I will show you how to create a working LLM coding agent in 5 incremental steps. We will use Simon Willison&#39;s &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; library and John Daly&#39;s &lt;a href=&quot;https://github.com/jmdaly/llm-github-copilot&quot;&gt;llm-github-copilot&lt;/a&gt; plugin. The plugin gives us access to LLM models via Github Copilot which means all you need to get started is a github account (no LLM API sign-up/credit card required).&lt;/p&gt;
 &lt;p&gt;This is very similar to a previous previous post &lt;a href=&quot;https://example.com/blog/litellm-agent-in-six-steps/&quot;&gt;An LLM Coding Agent in 6 incremental steps and about 140 lines of python&lt;/a&gt;. The key difference is the use of &lt;a href=&quot;https://github.com/simonw/llm&quot;&gt;llm&lt;/a&gt; instead of LiteLLM. The resulting agent is much more concise and hopefully easier to understand.&lt;/p&gt;
 &lt;h1 id=&quot;step-0-prerequisites-uv-llm-etc&quot;&gt;Step 0: Prerequisites (uv, llm, etc)&lt;/h1&gt;
@@ -45,7 +304,15 @@ code that you need to fill in at the provided github URL in order to
 authorize this client. Once you do this, API access token refreshes
 will happen automatically.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ llm github_copilot auth login&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ llm github_copilot auth login&lt;/em&gt;
+Starting GitHub Copilot login process to obtain an access_token &amp; API key...
+Fetching API key...
+
+Please visit https://github.com/login/device and enter code 1234-ABCD to authenticate GitHub Copilot.
+
+Waiting for authorization... (attempt 1/12)
+...
+Authentication successful!&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
 &lt;p&gt;Notes:&lt;/p&gt;
 &lt;ul&gt;
@@ -312,8 +579,12 @@ command line (like step 1).&lt;/li&gt;
     <link href="https://example.com/blog/litellm-agent-in-six-steps/" />
     <updated>2025-05-01T00:00:00Z</updated>
     <id>https://example.com/blog/litellm-agent-in-six-steps/</id>
-    <content type="html">&lt;p&gt;&lt;strong&gt;[Updated 2025-05-06 to add some more details around tool calling and parameter inspection]&lt;/strong&gt;&lt;/p&gt;
-&lt;p&gt;&lt;strong&gt;[Refer to &lt;a href=&quot;https://example.com/blog/llm-agent-in-five-steps&quot;&gt;LLM Agent in Five Steps&lt;/a&gt; for a shorter/simpler version of this tutorial that leverages the llm python module instead of LiteLLM]&lt;/strong&gt;&lt;/p&gt;
+    <content type="html">&lt;p&gt;&lt;strong&gt;[Refer to &lt;a href=&quot;https://example.com/blog/llm-agent-in-five-steps&quot;&gt;LLM Agent in Five Steps&lt;/a&gt; for a shorter/simpler version of this tutorial that leverages the llm python module instead of LiteLLM]&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Updates&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;2025-05-06: more detail around tool calling and parameter inspection&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;2025-06-20: simplify litellm dependency install.&lt;/strong&gt;&lt;/li&gt;
+&lt;/ul&gt;
 &lt;p&gt;In this post I will show you how to create a working LLM coding agent in 6 incremental steps. We will use the python LiteLLM library and use Github Copilot which means all you need is a github account (in other words, no LLM API sign-up is needed to get started). The full code for each step shown below can be found at &lt;a href=&quot;https://github.com/kanaka/litellm-agent&quot;&gt;github.com/kanaka/litellm-agent&lt;/a&gt;.&lt;/p&gt;
 &lt;h1 id=&quot;step-0-prerequisites-uv-litellm-etc&quot;&gt;Step 0: Prerequisites (uv, LiteLLM, etc)&lt;/h1&gt;
 &lt;p&gt;You will either need a Github account (to access Github Copilot) or you will need LLM API keys with some billing credits. I recommend starting with the Github Copilot.&lt;/p&gt;
@@ -330,12 +601,10 @@ environment:&lt;/li&gt;
 &lt;em&gt;$ uv venv&lt;/em&gt;
 &lt;em&gt;$ source .venv/bin/activate&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;ul&gt;
-&lt;li&gt;Clone a branch of the LiteLLM project that has support for Github
-Copilot models. Then install the local copy of LiteLLM and its
-dependencies into the virtual environment:&lt;/li&gt;
+&lt;li&gt;Install a branch of the LiteLLM project (into the venv) that has
+support for Github Copilot models.&lt;/li&gt;
 &lt;/ul&gt;
-&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ git clone https://github.com/BerriAI/litellm -b litellm_dev_03_05_2025_contributor_prs&lt;/em&gt;
-&lt;em&gt;$ uv pip install litellm/&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
+&lt;pre class=&quot;language-text&quot; tabindex=&quot;0&quot;&gt;&lt;code class=&quot;language-text&quot;&gt;&lt;em&gt;$ uv pip install git+https://github.com/BerriAI/litellm.git@litellm_dev_03_05_2025_contributor_prs&lt;/em&gt;&lt;/code&gt;&lt;/pre&gt;
 &lt;p&gt;Note: in the examples that follow, user input that is typed into the agent is shown with a &lt;span style=&quot;color: plum&quot;&gt;plum&lt;/span&gt; color.&lt;/p&gt;
 &lt;p&gt;We are now ready to start the fun!&lt;/p&gt;
 &lt;h1 id=&quot;step-1-single-api-call&quot;&gt;Step 1: Single API call&lt;/h1&gt;
